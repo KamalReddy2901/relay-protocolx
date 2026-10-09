@@ -1,6 +1,6 @@
 # prompt.md — Relay (ProtocolX "What Did I Miss?")
 
-Status: DRAFT, 9 Oct 2026. The live base app is at https://relay-protocolx.pages.dev; production currently serves source commit `a5aa1ff` (including the event-time fix and a multi-field prompt example). It is NOT claimed ready for judging and nothing has been submitted to the portal. Further prompt work is local and not yet deployed.
+Status: DRAFT, 9 Oct 2026. The live base app is at https://relay-protocolx.pages.dev; production was checked after source commit `21929e5`; BrowserOS loaded the updated JS/CSS assets. The check verified the shell and compiled styles, not a fresh inference-generated brief. It is NOT claimed ready for judging and nothing has been submitted to the portal. Further prompt work is local and not yet deployed.
 
 **GenAI services used and where (organizer requirement):**
 - *Runtime (in the product):* WebLLM 0.2.85 running Qwen3-4B-q4f16_1-MLC in the user's browser (Web Worker). It performs the extraction of items/changes from the pasted chat. No cloud AI, no second model, no canned output. Rules (parser, validation, ranking, deadlines) are deterministic code, not AI.

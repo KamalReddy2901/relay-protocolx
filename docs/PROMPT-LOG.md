@@ -119,3 +119,6 @@ Purpose: continue from the deployed base, verify the signature interaction, and 
 - **Tool/model:** Codex.
 - **Purpose/files:** carry out the focused UI refinements based on the Make review; `src/ui/Brief.tsx`, `src/index.css`, `prompt.md`, and build log.
 - **Outcome/verification:** combined redline markup, badge-like fills removed, bounded evidence-panel scrolling. `npm test` 30/30, lint and production build passed. Deployment and rendered review are pending.
+
+### Production verification update — focused UI refinement
+BrowserOS Neo opened the public production page after `21929e5` and confirmed the changed JS/CSS assets plus the compiled redline and scroll rules. It did not run a fresh model inference or inspect a populated brief screenshot. See `docs/BUILD-LOG.md` and `docs/RELEASE.md`.
