@@ -13,3 +13,7 @@ Reviewed contracts: SPEC.md and DESIGN.md. Deployment evidence: docs/RELEASE.md.
 ## AI assistance
 
 Planning documents: Opus 5.5 through Figma Make, as reported by the participant. Review and shell: Codex in this conversation. Planned runtime: WebLLM with Qwen3-4B, not implemented or tested yet. See docs/PROMPT-LOG.md for record limits.
+
+## Deployment
+
+[Live shell](https://relay-protocolx.pages.dev) · Git-connected Cloudflare Pages project `relay-protocolx`. Verified CP0 commit: `586ff5e`. Full release evidence is in docs/RELEASE.md.

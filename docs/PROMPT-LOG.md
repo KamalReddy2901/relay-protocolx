@@ -5,3 +5,80 @@ User supplied the P06 review instructions and P08 deployment authorization in th
 Observed inputs: uploaded SPEC.md and DESIGN.md; user-reported Make output messages. Originals preserved. User confirms Make produced these files. Exact full Make conversation is not available here; docs/RESEARCH-AND-MAKE-P04.md and docs/MAKE-P05.md are the supplied handoff templates, not independent evidence of exactly what was sent.
 
 P06 outcome: reviewed and patched the two contracts; see docs/REVIEW.md. P08 Mode A authorized and in progress. P07 has not been executed. No past usage, failed runs, tests or human decisions are invented.
+
+## User-supplied P06 instruction body
+
+Review the attached SPEC.md and DESIGN.md written by Opus against the exact
+ProtocolX statement, current rules, and research. These documents are the intended
+build contract for Sol 6.1. Preserve strong product and visual decisions.
+
+Check requirement coverage, useful core journey, real versus sample capabilities,
+critical data/API assumptions, architecture and Cloudflare compatibility, shared
+state/persistence, failure recovery, and visual specificity. Check that the two
+documents agree on every feature, exclusion, data field, and interaction.
+
+Make one focused review pass. Fix concrete defects directly in the two Markdown
+files; avoid rewriting sound sections for personal stylistic preference. Do not
+produce a separate competing plan or dilute distinctive design into generic SaaS.
+Do not add scope for the sake of sounding comprehensive. If a consequential choice
+is unresolved, ask one precise question; otherwise make reasonable reversible
+implementation decisions and record them briefly.
+
+Save the original documents before editing, then apply minimal in-place patches
+and inspect the diff. Protect declared visual choices unless a concrete
+accessibility, usability, feasibility or requirement defect warrants changing them.
+Return only consequential fixes with affected R#/AC#/V# IDs, any true blocker,
+and the paths to the patched documents. If file access is unavailable, return
+exact replacement sections to apply. Do not re-emit two full documents by default
+or create a third build contract/handoff. Sol reads these same two files.
+When working locally, save the accepted files as SPEC.md and DESIGN.md in the
+same event project directory and report its absolute path. If no directory is
+set, choose an unused product-named folder under the provided workspace; never
+overwrite another project. Preserve the supplied statement/rules and research in
+docs/. Name the product, suggested repo slug, and exact paths in the final status
+so Sol can open that directory. Publication still belongs to the deployment step.
+No screen prototypes, no coding yet, no task-duration estimates. If the incoming
+documents are already sound, say so and hand them through with minimal edits.
+
+## User-supplied P08 instruction body
+
+Mode: [A — initial shell / B — publish current checkpoint].
+In Mode A, read accepted SPEC.md and DESIGN.md, create only the minimal compatible
+scaffold, then prove the deployment path before feature implementation. In Mode B,
+publish the current checkpoint to the existing repository and Pages project;
+do not create duplicates. Project directory: [PROJECT DIRECTORY].
+Mode A only: create a new public GitHub repository named [REPO NAME] and connect
+it to Cloudflare Pages using Git integration. Mode B: use [EXISTING REPO URL]
+and [EXISTING PAGES PROJECT]. Follow current repository-creation rules.
+
+Inspect repository state and account access first. Preserve existing work.
+Confirm the framework's build/runtime requirements fit this deployment target.
+Use the project's actual package manager, lockfile, build command, output folder,
+and compatible runtime version. Keep credentials out of committed and browser
+code; document environment-variable names only. If a required login or account
+choice blocks you, tell me exactly what I need to do.
+
+Verify the public repository, successful deployment, production commit, fresh
+visit, nested-route refresh, loaded assets, and whatever behavior exists at this checkpoint on the production URL. Mode A
+proves shell/build/access. Once CP3 exists, verify the complete core journey.
+Check the important external dependency on the deployed origin when added.
+Do not claim shell deployment is submission readiness. Test deep links rather
+than adding blanket SPA rewrites that could hide API errors.
+Update README and the release note with the verified URL and commit.
+
+This authorizes GitHub publication and Cloudflare deployment, not submission to
+the judging portal. Report the two URLs and actual checks, plus any unresolved
+deployment issue. Append the actual prompt and outcome to docs/PROMPT-LOG.md.
+
+Pin the compatible runtime and package-manager versions and commit one lockfile.
+Verify public access while signed out. Check fonts, icons, maps and runtime
+requests on production; when promised, test reload persistence, synchronized save
+results and actual exported file contents. Record the tested URL, commit and
+check results in docs/RELEASE.md. Confirm a failed deployment has not left an old
+build serving unnoticed. If a new release is broken, restore the last verified
+deployment using the host's release controls, preserving source work, then fix
+the cause and repeat affected checks. Do not submit through the judging portal.
+
+Execution context: P08 Mode A; new directory /Users/kamal/Desktop/My projects/relay-protocolx; new public repo relay-protocolx; Cloudflare Pages Git integration. P06 art direction retained. No portal submission authorized or performed.
+
+P08 observed outcome: public repository and Git-connected Pages shell deployed and browser-verified at 586ff5e. No portal submission. Feature implementation remains for P07.
