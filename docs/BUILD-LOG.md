@@ -19,3 +19,13 @@ P06 color-token calculation (not rendered UI verification):
 --focus on --sheet: 6.67:1 (target 3:1)
 
 CP0 production verified at commit 586ff5e: successful matching Cloudflare deployment and GitHub CI; fresh root visit and nested /catch-up refresh rendered; hashed JS/CSS loaded. No model or domain tests run at this shell stage.
+
+## 9 Oct 2026 — CP1 start (Zed session)
+
+Observed state: main = origin/main at 16a8dc4 (CP0), untracked docs only. Read ZED-HANDOFF, EXECUTION-PROMPTS (P07, P08, P12), SPEC, DESIGN, EVENT-RULES, RELEASE, RESEARCH-REVIEW. The three Downloads reports were attached to the session by the user (outline only was shown to the agent; they were NOT read in full by this agent, so no claim from them is repeated here).
+
+Added (commit e29851f): `@mlc-ai/web-llm` 0.2.85 (exact), vitest 4.1.11 (3.x had audit advisories), parser (WA-A, WA-I, BRACKET, PLAIN), extraction schema/prompt, validator, worker, `#probe` debug view, CSP with `wasm-unsafe-eval` and connect-src for huggingface.co, *.huggingface.co, *.hf.co, raw.githubusercontent.com (hosts are a starting guess, not yet verified against real redirects).
+Checks run locally: `npm test` 14/14 pass (parser, validator; synthetic fixtures), `npm run lint` clean, `npm run typecheck` clean, `npm run build` ok.
+Deployed: production serves e29851f assets (index-Dt3TZxpl.js) with the new CSP header (verified by curl).
+
+CP1 model probe: NOT RUN. BrowserOS Neo returned "Context server request timeout" for every call (tabs, run, wait, human-help). No model load, timing, quality, network or cache result exists yet.

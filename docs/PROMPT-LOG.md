@@ -82,3 +82,7 @@ the cause and repeat affected checks. Do not submit through the judging portal.
 Execution context: P08 Mode A; new directory /Users/kamal/Desktop/My projects/relay-protocolx; new public repo relay-protocolx; Cloudflare Pages Git integration. P06 art direction retained. No portal submission authorized or performed.
 
 P08 observed outcome: public repository and Git-connected Pages shell deployed and browser-verified at 586ff5e. No portal submission. Feature implementation remains for P07.
+
+## Zed session, 9 Oct 2026 — continue ProtocolX (P07 + P08 Mode B + P12 context)
+Prompt (summary of actual message): continue in existing workspace; read ZED-HANDOFF, P07/P08B/P12, SPEC, DESIGN, EVENT-RULES, RELEASE, RESEARCH-REVIEW and three research briefs; start with CP1 real WebLLM probe on the deployed site with unfamiliar input; continue if it passes; keep the approved design and change-aware interaction; no canned inference, no second engine, no portal submission; show first wired screen with V# findings; record prompts/checks accurately.
+Outcome so far: probe code deployed (e29851f); probe not executed because the browser tool was unavailable. See BUILD-LOG.
