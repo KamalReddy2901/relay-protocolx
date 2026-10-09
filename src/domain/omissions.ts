@@ -20,6 +20,29 @@ export function omissionChecks(messages: Message[], participants: Participant[],
   }
   const byId = new Map(messages.map((m) => [m.id, m]));
   const seen = new Set<string>();
+  // Independently cue the model when a later unread message explicitly revises
+  // a previously confirmed time. This catches the case where the first pass
+  // returned no change pair at all. It is only an audit request, never output.
+  const revisionCue = /\b(?:update|updated|moved|move|changed|change|rescheduled|reschedule|instead|new time|new venue|now at)\b/i;
+  for (let j = 0; j < messages.length; j++) {
+    const after = messages[j];
+    if (!after.isUnread || isInstructionLike(after.text) || !revisionCue.test(after.text)) continue;
+    const afterTimes = times(after.text);
+    if (afterTimes.length !== 1) continue;
+    for (let i = j - 1; i >= 0; i--) {
+      const before = messages[i];
+      const beforeTimes = times(before.text);
+      if (beforeTimes.length !== 1 || beforeTimes[0] === afterTimes[0]) continue;
+      if (!/\b(?:confirm(?:ed|ation)?|scheduled|set for|booked|planned)\b/i.test(before.text)) continue;
+      const key = `${before.id}|${after.id}`;
+      const alreadyFound = report.changes.some((change) => change.field === 'time' && change.before.evidence.messageId === before.id && change.after.evidence.messageId === after.id);
+      if (alreadyFound) break;
+      if (seen.has(key)) break;
+      seen.add(key);
+      checks.push(`Check ${before.id} and ${after.id} for an explicit confirmed event-time revision. The later message has a revision cue and a different time; emit a time change only if it confirms the same event, with exact before/after quotes. A proposal/question must remain proposed.`);
+      break;
+    }
+  }
   for (const pair of report.changes) {
     const key = `${pair.before.evidence.messageId}|${pair.after.evidence.messageId}`;
     if (seen.has(key)) continue;

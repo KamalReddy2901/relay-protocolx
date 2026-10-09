@@ -90,6 +90,19 @@ describe('pipeline with a model double', () => {
     expect(out.coverage.complete).toBe(true);
   });
 
+  it('audits a confirmed time revision even when first extraction returns no changes', async () => {
+    const { p, msgs } = setup(FIXTURE, 'm1');
+    let calls = 0;
+    const out = await runCatchUp({ messages: msgs, participants: p.participants, generate: async (user) => {
+      calls++;
+      if (calls === 1) return { text: JSON.stringify({ items: [] }), finishReason: 'stop' };
+      expect(user).toContain('explicit confirmed event-time revision');
+      return { text: JSON.stringify({ items: [] }), finishReason: 'stop' };
+    } });
+    expect(calls).toBe(2);
+    expect(out.coverage.complete).toBe(true);
+  });
+
   it('marks a failed omission audit partial rather than accepting the incomplete first answer', async () => {
     const { p, msgs } = setup('10/10/26, 09:00 - Priya: Leena, please send the notes.');
     const people = [...p.participants, { id: 'p9', displayName: 'Leena', messageCount: 0 }];
