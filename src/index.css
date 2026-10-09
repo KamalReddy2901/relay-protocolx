@@ -183,3 +183,7 @@ dialog.confirm::backdrop { background: rgb(27 26 23 / 0.4); }
   .topbar { padding-inline: var(--s-4); }
 }
 @media (min-width: 768px) and (max-width: 1279px) { .sheet { max-width: 720px; } }
+
+input[type='file']::file-selector-button { font: inherit; min-height: 36px; padding: 0 var(--s-3); margin-right: var(--s-2); border: 1px solid var(--rule-strong); border-radius: var(--radius-1); background: var(--sheet); color: var(--ink); cursor: pointer; }
+.steps li + li::before { content: '·'; margin-right: var(--s-4); color: var(--ink-2); font-weight: 400; }
+@media (min-width: 768px) and (max-width: 1279px) { textarea { min-height: 21rem; } }

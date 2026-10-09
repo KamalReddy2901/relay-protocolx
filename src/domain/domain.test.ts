@@ -29,6 +29,7 @@ describe('parser', () => {
     const text = '01/02/26, 10:00 - Sam: a\n03/04/26, 10:00 - Ann: b';
     expect(parseChat(text, { timezone: TZ }).dateOrderAmbiguous).toBe(true);
     const mdy = parseChat(text, { timezone: TZ, dateOrder: 'MDY' });
+    expect(mdy.dateOrderAmbiguous).toBe(true); // stays flagged so the choice control remains visible
     expect(mdy.messages[0].timestamp).toBe('2026-01-02T10:00:00+05:30');
     const dmy = parseChat(text, { timezone: TZ, dateOrder: 'DMY' });
     expect(dmy.messages[0].timestamp).toBe('2026-02-01T10:00:00+05:30');

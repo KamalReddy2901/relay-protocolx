@@ -73,7 +73,6 @@ export function Steps({ current }: { current: 1 | 2 | 3 }) {
       {names.map((n, i) => (
         <li key={n} aria-current={i + 1 === current ? 'step' : undefined}>
           {i + 1} {n}
-          {i < 2 ? ' ·' : ''}
         </li>
       ))}
     </ol>

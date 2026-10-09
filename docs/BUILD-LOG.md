@@ -67,3 +67,13 @@ Not covered by the probe as reported: multi-chunk runs, offline recovery, ambigu
 5. UI copy: the first-use download size now says "about 2.2 GB ... measured once on one laptop" (from the relayed 2,159 MB transfer figure).
 6. Privacy/no-egress remains unproven. The UI line "Your chat is processed in this browser. It is not uploaded." is the intended design; verification needs a network capture that includes the worker (e.g. CDP across targets).
 7. CSP: observed hosts huggingface.co and raw.githubusercontent.com. The wildcard hf.co/huggingface.co entries have not been narrowed; narrowing requires observing the redirect hosts during a full download.
+
+### Status correction (9 Oct 2026, after Codex finished the live probe)
+The earlier entry "CP1 model probe: NOT RUN" described this Zed session when BrowserOS timed out. Codex has since run the probe on the deployed `#probe` (commit `e29851f`) and the user reported: cold Qwen3-4B load 129.7 s (2,159 MB shown), warm load from cache, cached inference completed with the browser offline then connectivity restored, signature case found the m1→m3 time/place changes, proposal-only stayed Proposed, injection+cancellation fixture misclassified the hostile message as confirmation (fixed in code, see above), empty `<think>` markers remain (thinking NOT shown to be disabled), model files from huggingface.co and WASM from raw.githubusercontent.com. Synthetic data only. Not a complete no-egress guarantee. This agent did not observe these runs.
+
+## 9 Oct 2026 — P09 finding and local rendered checks (Zed, local headless Chrome via playwright-core; Neo not used)
+- P09 (user-reported, from Neo): at 1024×768 the "Review messages" button ended at y=782, below the viewport. Fix: textarea min-height 21rem for 768–1279px only. Re-measured with `scripts/qa/s1.mjs` (headless Chrome): button bottom 1440×900 = 783 (viewport 900), 1024×768 = 703 (viewport 768), 390×844 = 558 (viewport 844); no horizontal overflow at any width; button height 44px. Computed fonts: body Public Sans 16px, h1 Newsreader 36px (28px at 390), textarea IBM Plex Mono 14px.
+- Defect found by my own scripted journey: choosing a date format made the DMY/MDY control disappear (the ambiguity flag cleared once a choice existed). Fixed in `parser.ts` (flag stays true; Review still blocks only while no choice is made); test updated. 
+- Cosmetic: step separators moved to CSS, native file button styled.
+- My scripted full model journey (headless Chrome, WebGPU reported true) was interrupted by the user before completing; no result from it is claimed.
+- Not claimed: V2–V12, S2–S5 rendered review, keyboard checks, deployed checks. The user is running those in Neo.

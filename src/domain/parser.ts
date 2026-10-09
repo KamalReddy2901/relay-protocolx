@@ -221,7 +221,8 @@ export function parseChat(raw: string, opts: ParseOptions): ParseResult {
     else if (anySecondOver12 && !anyFirstOver12) order = 'MDY';
     else if (anyFirstOver12 && anySecondOver12) {
       issues.push({ line: numeric[0].lineStart, kind: 'ambiguous-date', rawLine: 'Dates use both orders', handling: 'excluded-shown' });
-    } else if (!order) {
+    } else {
+      // Day and month cannot be told apart from the text; stays true after the user chooses so the choice remains visible.
       result.dateOrderAmbiguous = true;
     }
     result.dateOrderUsed = order;
@@ -255,7 +256,7 @@ export function parseChat(raw: string, opts: ParseOptions): ParseResult {
       const month = order === 'DMY' ? h.b! : h.a;
       timestamp = wallTimeToIso(h.year!, month, day, h.hour!, h.minute!, h.second ?? 0, opts.timezone);
     }
-    if (!timestamp && format !== 'PLAIN' && format !== 'BRACKET-TIME' && !result.dateOrderAmbiguous) {
+    if (!timestamp && format !== 'PLAIN' && format !== 'BRACKET-TIME' && !(result.dateOrderAmbiguous && !order)) {
       issues.push({ line: e.lineStart, kind: 'no-timestamp', rawLine: e.header.timestampRaw, handling: 'excluded-shown' });
     }
     messages.push({
