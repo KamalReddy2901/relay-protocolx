@@ -1,6 +1,14 @@
 # Release and submission record
 
-## Latest production check — 9 October 2026 (HTTP and asset verification)
+## Latest production check — 9 October 2026 (latency update, HTTP and asset verification)
+
+- Published source: `1799bb4` (`Reduce redundant local inference waits`); Cloudflare Pages production deployment `743093ac-2957-4aa7-ba1a-adb1630310b6` on `main`.
+- The fresh production root serves `index-7_MBewoG.js` and `index-Deg3Nyrz.css`. Fresh HTTPS requests returned HTTP 200 for the main bundle, WebLLM engine (`engine-DFtP1BPO.js`), and model worker (`llm.worker-_RSyaQwm.js`). The bundle contains the running-screen **Switch to instant rules** action.
+- This update skips a duplicate model audit only when exact source-span logic already recovers a clear same-author confirmed time change; ambiguous/cross-author revisions and missed named tasks retain the AI audit. During an in-progress run, the user can interrupt AI and choose the separately labeled rules result.
+- Local checks for `1799bb4`: lint, typecheck, 43/43 tests, and production build passed. No fresh WebGPU inference was run, and the 31-second screenshot latency was not remeasured. The optimization does not guarantee faster first-pass generation; switching to rules does provide a quicker, non-AI result.
+- No interactive browser/visual review or network-egress capture was performed for this build.
+
+## Previous production check — 9 October 2026 (HTTP and asset verification)
 
 - Public repository: https://github.com/KamalReddy2901/relay-protocolx
 - Production URL: https://relay-protocolx.pages.dev
