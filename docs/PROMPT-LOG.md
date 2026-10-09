@@ -100,3 +100,8 @@ User priority instruction: base first; do the minimum remaining build and local 
 
 ## Zed session, 9 Oct 2026 — task-deadline defect and packaging note
 Verbatim defect prompt and summary of the packaging note are recorded in prompt.md §3.7–3.8. Outcome: event-time vs task-deadline fix (tests 30/30); production re-verification pending Codex/Neo.
+
+## Codex session, 9 Oct 2026 — quick base-app continuation (verbatim)
+> aghhh so what do we do? Continueeee quickkkk
+
+Purpose: continue from the deployed base and keep work moving without another long model run. Outcome: removed an uncommitted QA-only raw-prompt trace hook; updated the page title and description and added a small redline-themed SVG favicon. Local tests (30/30), lint, typecheck, and production build passed. This small polish is not deployed. The previously observed missing time/place redline remains unresolved; no inference result was fabricated.

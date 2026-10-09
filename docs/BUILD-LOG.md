@@ -83,3 +83,6 @@ Before push: `npm test` 28/28, lint, typecheck, build passed locally; S1 viewpor
 
 ## 9 Oct 2026 — event time vs task deadline (Zed)
 Defect (reported by Codex from production 4c29eb0): task with no stated deadline showed "4pm · 9 Oct" and "Due today". Cause: model `deadline_text` ("4pm", really the setup time) was resolved as the task due date, against "now" because the chat had no timestamps. Fix: `isTaskDeadline` requires a deadline cue (by/before/until/due/EOD/tonight…) in the sentence containing the time; otherwise `eventTime` is shown as context and due is "No date given"; user-edited deadlines are treated as deadlines. Regression tests (2) added. Local: `npm test` 30/30, lint, typecheck, build pass. Not yet verified on production.
+
+## 9 Oct 2026 — quick base-app continuation (Codex)
+Updated the document title, description, browser theme color, and added `public/favicon.svg` with Relay's redline motif. Removed the temporary local-only QA raw-prompt trace hook from the uncommitted workspace; no debug tracing is included in this change. Local verification: `npm test` 30/30, `npm run lint`, and `npm run build` (includes TypeScript typecheck) passed. The new page metadata/favicon are not deployed or browser-checked. The live run's missing time/place redline remains a known defect; no model output was synthesized or hardcoded.
