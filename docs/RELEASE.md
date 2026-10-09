@@ -27,3 +27,8 @@ Previous known-working CP0 deployment: d4b28656 (586ff5e), still available in th
 ## Base update — event-time fix (9 Oct 2026, still NOT submission-ready)
 Deployed app commit: e1e43bc (production serves `index-CuHoFhIC.js`, matching the local build). Production smoke (headless Chrome, S1→S2): fonts applied, no console/CSP errors. Change: a time without a deadline cue is shown as "Event time", the task shows "No date given". Tests 30/30, lint, typecheck, build passed before push.
 NOT yet verified: the fix on production with live inference (Codex to re-run the synthetic signature fixture in Neo and check the task deadline and the separate event time). Portal: nothing submitted.
+
+## Metadata polish — 9 Oct 2026
+Source commit `a5c6a54` is live on `https://relay-protocolx.pages.dev`. BrowserOS Neo confirmed the updated page title and description, `/favicon.svg` returned HTTP 200 with `image/svg+xml`, and the first screen rendered. The app bundle at that check was still `index-CuHoFhIC.js` (the `e1e43bc` app code); this verifies the metadata/favicon release, not a new feature release.
+
+Source commit `c20b386` was pushed after that metadata release. It strengthens the model instruction to retain all explicit changed fields and extends the synthetic pipeline test for simultaneous time/place changes. Local tests 30/30, lint, typecheck, and build pass. At the latest production check, the deployed model chunk still lacked that new prompt instruction; the `c20b386` deployment and real-model behavior remain unverified. No portal submission has been made.

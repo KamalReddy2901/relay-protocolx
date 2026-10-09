@@ -13,9 +13,10 @@ For a student who returns to a busy group chat: paste the text, choose your iden
 Deterministic parser (`src/domain/parser.ts`) → chunker with context and evidence ledger (`chunker.ts`) → WebLLM Qwen3-4B in a Web Worker (`src/worker`, `src/inference`) → validator (`validate.ts`: exact quotes, real message ids, change-pair rules, instruction-like text never confirms anything) → conservative reconcile → deterministic ranking (`rank.ts`). Results come only from live inference on your text; there is no canned or sample output and no cloud fallback. Stack: React, TypeScript, Vite, `@mlc-ai/web-llm` 0.2.85, Cloudflare Pages (static).
 
 ## Evidence so far (be skeptical)
-- Unit tests: 28 passing (parser, validator, runner with a labelled model test double, chunking, retry, injection regression).
+- Unit tests: 30 passing (parser, validator, runner with a labelled model test double, chunking, retry, injection regression, task deadline handling, and multi-field redline validation).
 - Live probe on the earlier probe build (`e29851f`), synthetic fixtures only, reported by the participant/Codex: Qwen3-4B cold load 129.7 s on one WebGPU/Metal laptop, warm load from cache, signature change found, proposal stayed Proposed, one injection fixture lost a valid proposal (fixed in code; fix not re-probed live). See `docs/BUILD-LOG.md`.
 - Not verified: the complete deployed journey, thinking mode (empty `<think>` markers still appear), a no-network-egress guarantee, other devices, long chats, accessibility and visual checks beyond the three S1 viewports, all acceptance checks AC1–AC22.
+- Current live run issue: a synthetic full-app run surfaced the reassigned projector task but missed the explicit time/place redline. Commit `c20b386` strengthens the extraction prompt and its synthetic pipeline test; the latest BrowserOS check still served the prior model chunk, so that prompt change has not been verified live.
 
 ## Limitations
 Extraction can be wrong; quote checks show source, not meaning. Only the listed formats are supported; English assumed. 10–40 s per section was observed, so long chats take minutes. Hardware without WebGPU cannot run it. Targeted second reconciliation pass not implemented. No accuracy figure is claimed.
