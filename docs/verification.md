@@ -7,9 +7,9 @@ This is a bounded audit of the current production release, not a claim that ever
 - App URL: https://relay-protocolx.pages.dev
 - Public source: https://github.com/KamalReddy2901/relay-protocolx
 - Application source commit: `895b40a` (`Recover explicit confirmed time revisions from source spans`)
-- Fresh production reload served `assets/index-Wo0d1J8Y.js` and `assets/index-Deg3Nyrz.css`; these match this checkout's production build. Cloudflare deployment ID was not captured.
+- Fresh production reload served `assets/index-Wo0d1J8Y.js` and `assets/index-Deg3Nyrz.css`; these match this checkout's production build. App deployment ID: `02edfbb0-6820-4410-9e22-c160171f1ed5` for source `895b40a`. The P12 docs/fixture commit `c5434ed` also built successfully as Cloudflare deployment `6ec35b7f-68c0-432a-a6f8-857ee2feaef0`.
 - Real runtime: Qwen3-4B through WebLLM/WebGPU in a browser worker. No cloud inference API.
-- Public anonymous repository API check: prior audit established `private=false`; recheck at final package time. The app itself opened without a login on a fresh public URL.
+- Public anonymous repository API check: `private=false`; root prompt blob SHA `6788263b5d5523df2e0ac8b94a9e8720124ed51f` matches local `prompt.md`. A commit-pinned raw URL returned the latest prompt. One branch-raw request returned an older cached body, so the uploaded local `prompt.md` or commit-pinned GitHub file should be used.
 
 ## Live functional checks
 
@@ -72,7 +72,8 @@ Source IDs and exact quotes are validated; chat text is treated as untrusted inp
 
 - **Live passes:** AC1, AC3, AC7, AC8.
 - **Partial or unit-only:** AC6, AC13, AC14, AC21.
-- **Not demonstrated in this final production pass:** AC2, AC4, AC5, AC9–AC12, AC15–AC20, AC22. Some corresponding unit checks pass, but they do not replace the specified live/manual checks.
+- **Not demonstrated in this final production pass:** AC2, AC4, AC5, AC9–AC12, AC15–AC20. Some corresponding unit checks pass, but they do not replace the specified live/manual checks.
+- **AC22:** pass for public repo visibility and current root `prompt.md` availability via anonymous GitHub API/commit-pinned content check; public app URL is also accessible without login.
 
 ## Decision
 
