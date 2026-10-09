@@ -1,0 +1,15 @@
+import { launch } from './lib.mjs';
+const url = process.argv[2] ?? 'https://relay-protocolx.pages.dev/';
+const b = await launch();
+const p = await (await b.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
+const errs = [];
+p.on('console', (m) => m.type() === 'error' && errs.push(m.text().slice(0, 160)));
+await p.addInitScript(() => document.addEventListener('securitypolicyviolation', (e) => console.error('CSP ' + e.violatedDirective + ' ' + e.blockedURI)));
+await p.goto(url);
+await p.waitForSelector('textarea');
+await p.fill('textarea', '10/10/26, 09:00 - Sam: hi\n10/10/26, 09:01 - Ann: yo');
+await p.getByRole('button', { name: 'Review messages' }).click();
+await p.waitForSelector('text=Check the messages');
+const f = await p.evaluate(() => ({ h1: getComputedStyle(document.querySelector('h1')).fontFamily.slice(0, 20), fontsOk: document.fonts.check('16px "Public Sans Variable"') }));
+console.log(JSON.stringify({ f, errs }));
+await b.close();
