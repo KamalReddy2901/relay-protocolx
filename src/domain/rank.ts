@@ -215,8 +215,9 @@ export function rank(input: RankInput): Ranking {
       if (p.field === 'owner') {
         const after = resolveOwner(p.after.value, participants).id;
         const before = resolveOwner(p.before.value, participants).id;
-        if (after === selfId) consequences.push(`For you: you now ${lowerFirst(title)} (was ${p.before.value}).`);
-        else if (before === selfId) consequences.push(`For you: you no longer ${lowerFirst(title)}; ${p.after.value} does.`);
+        const subject = p.subjectKey || title;
+        if (after === selfId) consequences.push(`For you: the “${subject}” assignment is now yours (was ${p.before.value}).`);
+        else if (before === selfId) consequences.push(`For you: the “${subject}” assignment moved to ${p.after.value}.`);
       }
     }
     if (consequences.length === 0) {
@@ -245,8 +246,4 @@ export function rank(input: RankInput): Ranking {
 
   // Items that are the "after" side of a change and owned by someone else give the owner-change reason to context rows.
   return { actNow: act, acknowledged, changed, context };
-}
-
-function lowerFirst(s: string) {
-  return s ? s.charAt(0).toLowerCase() + s.slice(1) : s;
 }
