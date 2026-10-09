@@ -1,34 +1,89 @@
-# Relay — What did I miss?
+# Relay — "What did I miss?"
 
-Relay turns a group chat you have not read into a personal handover: what needs you, what changed, and the messages that support each item. The signature interaction is a source-linked redline: an earlier confirmed plan beside its explicit replacement, with any reassigned action shown separately.
+**A personal handover for the group chat you have not read.** Paste a chat, say who you are and the last message you read, and Relay returns what needs *you*, what *changed* while you were away, and the exact source messages behind every item. Everything runs on your device.
 
-**Live app:** https://relay-protocolx.pages.dev
+- **Live app:** https://relay-protocolx.pages.dev
+- **Source:** https://github.com/KamalReddy2901/relay-protocolx
+- **Challenge:** ProtocolX — "The Unread Problem — What Did I Miss?"
+- **Login:** none. No accounts, no API keys, no test credentials needed.
 
-**Public repository:** https://github.com/KamalReddy2901/relay-protocolx
+## Problem-statement alignment
 
-## Try the app
+| Challenge goal | How Relay does it |
+|---|---|
+| Summarize long/unread conversations | Only messages after your chosen last-read point are processed; long chats are chunked with context and coverage is shown (incomplete runs are labelled partial). |
+| Identify important messages, decisions, action items | Brief sections: **Needs you**, **Changed**, **For context**. |
+| Prioritize by urgency and relevance | Deterministic ranking: tasks for the selected person first, then by deadline, then changes, then context. |
+| Highlight mentions, deadlines, tasks missed | Items assigned to or mentioning you are highlighted; deadlines are only shown when the chat states one (otherwise "No date given"). |
+| Local-first processing | Qwen3-4B runs in your browser via WebLLM + WebGPU in a Web Worker. No inference server, no cloud AI, no database. Chat text is never sent to a server by the app. |
 
-Paste a chat or choose a plain-text export. Confirm the date order and timezone if asked, choose your identity and last-read message, then run the local model. Open source links before acting; mark items done or not yours, change identity, copy the brief, or reset.
+**What makes it different:** a before → after *redline* for plan changes (e.g. Room B214 → LT-2, 3pm → 4pm) linked to both source messages, and a strict rule that a question ("could we do 4?") stays *Proposed* until a later message confirms it.
 
-[`examples/SYNTHETIC-SIGNATURE-DEMO.txt`](examples/SYNTHETIC-SIGNATURE-DEMO.txt) is a synthetic test scenario, not a real conversation. The model generates a fresh result from its text; the output is not precomputed. It exercises a proposed time, a later confirmed time/place change, and a task reassigned to Kamal. Never describe this fixture as a real chat. The organizer warns against fake data being presented as real; use it as a disclosed synthetic demonstration only if that is acceptable to the judges. Otherwise, test with a real conversation you have permission to use.
+## How to try it (2 minutes)
 
-## How it works
+Requirements: desktop Chrome or Edge with **WebGPU**, a few GB of free memory, and a connection for the **one-time ~2.2 GB model download** (cached afterwards).
 
-React + TypeScript + Vite on Cloudflare Pages. WebLLM runs Qwen3-4B in a browser Web Worker using WebGPU. Parsing, exact-quote and source-ID validation, change reconciliation, and personal ranking are deterministic code around model-generated extraction. Long chats are chunked; incomplete runs are labeled partial. No server, database, cloud inference API, login, or API secret is used.
+1. Open the live app and paste a chat, or paste the contents of [`examples/SYNTHETIC-SIGNATURE-DEMO.txt`](examples/SYNTHETIC-SIGNATURE-DEMO.txt) (a disclosed *synthetic* chat, used only as input; the output is generated fresh by the model).
+2. Confirm date order/timezone if asked, choose **who you are** and **the last message you read**.
+3. Click run. Wait for the model to download and load (progress and Cancel are shown).
+4. Read the brief; open any item's **source** to see the original messages. Mark items Done / Not mine, switch identity, run again, or start over.
 
-The model must be downloaded on first use (about 2.2 GB was observed on one laptop); WebGPU support, memory, and network determine whether it runs. Model assets are downloaded from external hosts. Chat-text egress has not been independently verified with a complete network capture, so the intended on-device processing is not a privacy certification. Inference can omit information; source quotes prove provenance, not semantic correctness. Check the original messages.
+If your browser lacks WebGPU, the app says so up front instead of failing silently.
 
-## Current verification
+## Features
 
-Production at `https://relay-protocolx.pages.dev` served the same JS/CSS asset hashes as the local build from application commit `895b40a` on 9 October 2026. In BrowserOS Neo, two actual Qwen3-4B runs on the production app used synthetic inputs:
+- Import by paste or plain-text export (WhatsApp-style formats); parse review with issue reporting.
+- Date-order and timezone handling for ambiguous exports.
+- Real on-device LLM extraction with JSON-schema-constrained output.
+- Evidence validation: every item must cite real message IDs and exact quoted text, otherwise it is dropped or downgraded.
+- Conservative change reconciliation (confirmed vs. proposed).
+- Prompt-injection guard: instruction-like text inside a chat is treated as data.
+- Source inspector, Done / Not mine / Edit / Undo, retry failed chunks, copy brief.
+- Dark "Night Shift" theme with light-theme and reduced-motion support.
 
-- Signature case: 2 unread messages; surfaced Kamal's projector action, grouped Room B214 → LT-2 and 3pm → 4pm, and cited source messages m1/m3. The task deadline stayed “No date given.”
-- Proposal-only variant: with the final update removed, the question “could we do 4?” appeared as “Proposed” under For context; no confirmed change or Kamal task was shown.
+## Architecture
 
-Local checks: 35 tests, lint, typecheck, production build, and 11 Night Shift contrast pairs pass. These checks do not establish every acceptance scenario or semantic accuracy. The full AC1–AC22 production audit is incomplete; see [`docs/verification.md`](docs/verification.md), [`docs/REVIEW.md`](docs/REVIEW.md), and [`docs/RELEASE.md`](docs/RELEASE.md). The project has not been submitted to the judging portal.
+```
+src/ui         screens: import, review, model setup, brief, source inspector
+src/inference  capability check, session, engine adapter
+src/worker     WebLLM Web Worker
+src/domain     parser, chunker, extraction prompt, validate, reconcile, rank, dates, injection guard, runner
+```
 
-## Development and verification
+Static React 19 + TypeScript + Vite site on Cloudflare Pages with a strict CSP (`public/_headers`). The model is the only AI component; parsing, validation, ranking and deadline logic are plain, unit-tested TypeScript. See [`SPEC.md`](SPEC.md) and [`DESIGN.md`](DESIGN.md).
 
-Use Node/npm versions pinned in `package.json`. Run `npm ci`, then `npm run dev`. Checks: `npm test`, `npm run lint`, `npm run typecheck`, `npm run build`, and `node scripts/contrast.mjs`. Cloudflare Pages builds `dist` from `main`.
+## GenAI services used
 
-The root [`prompt.md`](prompt.md) records the development process and GenAI disclosure. It also records that coding began before the organizer-required prompt file existed; chronology is not rewritten. Zed, Codex, and Figma Make were used during development (the Figma model name is participant-reported); runtime inference is Qwen3-4B through WebLLM.
+- **Runtime (in the product):** WebLLM 0.2.85 running `Qwen3-4B-q4f16_1-MLC` in the browser. Used for extracting tasks, changes and context from the pasted chat. No canned or hard-coded output.
+- **Development:** Zed agent (Claude Sonnet 5.5), Codex via BrowserOS Neo for browser probes, Figma Make for design exploration. Full record in [`prompt.md`](prompt.md).
+
+## Security and privacy
+
+- No server, no secrets, no analytics; chat text lives in memory only.
+- The only network traffic is static assets and the model weights from Hugging Face (allow-listed in the CSP).
+- Model output is untrusted: schema-constrained, then validated against the source text before display.
+- Not a certified privacy guarantee; a full network-capture audit was not performed.
+
+## Accessibility
+
+Visible focus styles, keyboard-operable controls and source inspector, semantic structure, light/dark themes, reduced-motion support, and 11/11 configured colour-contrast pairs (`node scripts/contrast.mjs`).
+
+## Known limits
+
+- First run needs WebGPU and a ~2.2 GB download; unsupported devices cannot run inference.
+- A 4B model can miss or misread items. Citations show *where* a claim came from, not that it is interpreted correctly — check the originals.
+- Unread state is chosen by the user, not detected.
+
+## Development
+
+```sh
+npm ci
+npm run dev        # local dev server
+npm test           # 35 unit/pipeline tests
+npm run lint
+npm run typecheck
+npm run build
+node scripts/contrast.mjs
+```
+
+Node and npm versions are pinned in `package.json` and `.nvmrc`. CI (`.github/workflows/check.yml`) runs the checks on push. Further notes: [`docs/verification.md`](docs/verification.md), [`docs/REVIEW.md`](docs/REVIEW.md), [`docs/RELEASE.md`](docs/RELEASE.md).

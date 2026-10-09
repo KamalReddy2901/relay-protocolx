@@ -15,3 +15,10 @@ export const PROPOSAL_ONLY = [
   '10/10/26, 09:00 - Priya: Setup is confirmed for 3pm in Room B214, Arjun bring the projector.',
   '10/10/26, 09:10 - Sam: could we do 4?',
 ].join('\n');
+
+// Same synthetic conversation without timestamps (FMT-PLAIN), as used in the production check.
+export const SIGNATURE_PLAIN = [
+  'Priya: Setup is confirmed for 3pm in Room B214, Arjun bring the projector.',
+  'Sam: could we do 4?',
+  "Priya: Update: we've moved to LT-2 at 4pm, Room B214 is gone. Kamal, please grab the projector instead, Arjun is out.",
+].join('\n');
