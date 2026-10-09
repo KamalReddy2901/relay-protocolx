@@ -102,7 +102,7 @@ export function Import({ initialText, fileName, onReview, skipFocus, notice }: P
           </div>
           {name && <p className="small muted">Loaded file: {name}</p>}
           <p className="small muted">
-            Your chat is processed in this browser. It is not uploaded. The AI model (large files on first use) downloads from its public host. You choose the text and where you stopped reading; Relay cannot see your chat app&apos;s unread state.
+            Your chat is processed in this browser. It is not uploaded. The AI model (about 2.2 GB on first use, measured once on one laptop) downloads from its public host. You choose the text and where you stopped reading; Relay cannot see your chat app&apos;s unread state.
           </p>
           <details>
             <summary>Supported formats</summary>

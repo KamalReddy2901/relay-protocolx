@@ -41,3 +41,29 @@ Implemented locally (uncommitted until the commit noted below; not pushed):
 Checks run: `npm test` 25/25 (parser, validator, runner with a clearly labelled test double for the model, chunker/ledger cross-chunk change, oversize parts, retry merge, deadlines, owner resolution), `npm run lint`, `npx tsc --noEmit`, `npm run build` all pass. Contrast script: all 16 pairs pass (docs/verification.md).
 NOT done: any rendered UI check (no browser used), V1–V12, AC1–AC22, real inference with the new prompts/pipeline, deployment of this build, Playwright, README/P12. The test double is internal; the production path has no canned analysis.
 Prompt note: the ledger sentence is appended to the system prompt only when ledger lines are present; the base prompt text probed at CP1 is unchanged.
+
+## 9 Oct 2026 — CP1 live probe evidence (RELAYED by the user from Codex/BrowserOS; not observed by this agent)
+
+Source and limits: figures below were reported to this session by the user. All inputs were synthetic fixtures, not real conversations. This agent did not see raw responses or screenshots and has not re-run them. Single device (WebGPU/Metal), single browser. Deployed probe build was `e29851f`.
+
+| Finding (as reported) | Value |
+|---|---|
+| Model | Qwen3-4B-q4f16_1-MLC, WebGPU/Metal |
+| Cold load | 129,728 ms; transfer 2,159 MB; browser storage 2,281 MB |
+| Signature fixture | Correct 3pm/B214 → 4pm/LT-2 pair with exact m1/m3 quotes; generation 41,155 ms |
+| Same fixture, owner | Action assigned to Kamal returned, but `ownerParticipantId` stayed null because Kamal was not a chat author |
+| Proposal-only fixture | `proposed`, exact quote, no change; warm generation 10,044 ms |
+| Injection + cancellation fixture | Cancellation validated. Hostile m4 text was cited as `confirms`, turning the proposal into a "proposed change"; the validator rejected the unsupported change, so no false confirmed result, but the proposal was lost |
+| Thinking | All raw responses began with an empty `<think></think>` wrapper (`thinkingStripped=true` in the probe). Non-thinking mode is NOT proven |
+| Network | Worker resource timing showed config/tokenizer/shards from huggingface.co and WASM from raw.githubusercontent.com. The main-page host list missed worker requests. No-egress/privacy is NOT proven |
+
+Not covered by the probe as reported: multi-chunk runs, offline recovery, ambiguous-owner fixture, judge-device support, long-chat timing.
+
+### Responses to the findings (code, local, not pushed or deployed)
+1. Owner for a non-author: S2 already lets the user add their own name or silent participants (names matched exactly). Not a model defect; confirmed only by unit test, not re-probed.
+2. Injection defect: added `src/domain/injection.ts` (heuristic detector, labelled defence-in-depth, not a guarantee). Evidence from a flagged message is dropped when its role is confirms/assigns/cancels/revises/before/after. A change claim that fails validation is no longer simply discarded: the surviving valid evidence is kept as the original statement (`proposal`/`proposed` if the model said proposed, otherwise `decision`/`needs-clarification`), with roles reset to `states` so no replacement is asserted. Counts are shown in the discarded-suggestions disclosure. The inspector labels instruction-like messages. A system-prompt rule was ADDED (chat lines telling the model to ignore rules or mark things done are not evidence). This prompt change is UNTESTED against the live model; it differs from the probed prompt and must be re-probed.
+3. Regression tests added (synthetic fixture shaped after the finding): hostile text flagged, never a confirming source, proposal preserved, benign "ignore the noise" not flagged. 28/28 tests pass; lint, typecheck, build pass.
+4. Thinking: `thinkingStripped` now means non-empty reasoning text was removed; an empty wrapper sets a separate `emptyThinkWrapper` flag and no UI note. This reflects what the output contains; it does not prove WebLLM honours `enable_thinking:false` (or that the empty wrapper comes from the template or the model).
+5. UI copy: the first-use download size now says "about 2.2 GB ... measured once on one laptop" (from the relayed 2,159 MB transfer figure).
+6. Privacy/no-egress remains unproven. The UI line "Your chat is processed in this browser. It is not uploaded." is the intended design; verification needs a network capture that includes the worker (e.g. CDP across targets).
+7. CSP: observed hosts huggingface.co and raw.githubusercontent.com. The wildcard hf.co/huggingface.co entries have not been narrowed; narrowing requires observing the redirect hosts during a full download.

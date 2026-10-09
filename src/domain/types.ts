@@ -117,7 +117,11 @@ export interface ValidationReport {
   items: Item[];
   changes: ChangePair[];
   discarded: { reason: string; title: string }[];
+  /** Unsupported change claims kept as the original statement instead of a replacement. */
+  downgraded: { title: string }[];
   droppedQuotes: number;
+  /** Evidence dropped because the cited message looks like an instruction to the AI. */
+  instructionSources: number;
 }
 
 export interface UserAction {
@@ -134,5 +138,6 @@ export interface Coverage {
   discardedCount: number;
   complete: boolean;
   cancelled: boolean;
+  /** Non-empty hidden reasoning text was removed from a reply. */
   thinkingStripped: boolean;
 }

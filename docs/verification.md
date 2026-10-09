@@ -30,3 +30,6 @@ V1–V12 visual checks, keyboard/focus checks, reduced-motion checks, all AC ite
 - Done collapse uses a Framer Motion height/opacity exit; Undo is the inline status plus a Restore list in the "Done or dismissed" disclosure.
 - Targeted reconciliation pass (SPEC 7.4 last sentence) is not implemented; only ledger-assisted chunk prompts and conservative merging exist. A cross-chunk relation is only created when the later item cites the earlier message itself.
 - No `@fontsource` preload link; no Playwright e2e test yet.
+
+## CP1 live probe (relayed, synthetic fixtures; see BUILD-LOG for figures)
+Observed by Codex/BrowserOS on the deployed `#probe` (commit `e29851f`) and reported to this session: cold load 129,728 ms, 2,159 MB transferred, 2,281 MB storage; signature pair correct; proposal-only correct; injection fixture exposed a coverage defect (fixed in code, regression-tested, NOT re-probed live). Non-thinking mode unproven. Egress unproven. These are probe results, distinct from unit-test fixtures, which only test the validator/runner with a model double.

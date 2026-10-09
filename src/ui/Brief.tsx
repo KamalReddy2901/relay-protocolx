@@ -434,6 +434,8 @@ export function Brief(props: Props) {
               <summary>{result.discarded.length} model suggestions discarded (no valid source)</summary>
               <p className="small muted">
                 These suggestions cited a message that does not exist, quoted text that is not in the message, or claimed a change without two valid sources.
+                {result.downgraded > 0 && ` ${result.downgraded} unsupported change ${result.downgraded === 1 ? 'claim was' : 'claims were'} kept as the original statement instead of a replacement.`}
+                {result.instructionSources > 0 && ` ${result.instructionSources} cited ${result.instructionSources === 1 ? 'message looked' : 'messages looked'} like instructions to the AI and ${result.instructionSources === 1 ? 'was' : 'were'} not used as evidence.`}
                 {result.discarded.length > 0 && ` Reasons: ${[...new Set(result.discarded.map((d) => d.reason))].join(', ')}.`}
               </p>
             </details>

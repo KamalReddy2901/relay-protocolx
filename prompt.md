@@ -74,3 +74,11 @@ Outcome: first `prompt.md` (`fc0bd48`) and an 8-step plan. Purpose: documentatio
 ### 3.3 Approval and organizer master prompt (summary; the full organizer text was pasted by the user and is not reproduced here)
 Summary: plan approved with two corrections; the organizer master prompt requires `prompt.md` with the sections above and, per interaction: actual prompt, tool/model, purpose, files, outcome/verification; no invented prompts or results; no secrets; wait for confirmation before application code. User asked to replace the "no confirmed format" line, keep the chronology honest, gate CP3 readiness on the full journey and acceptance checks, and then continue with the CP1 probe after refocusing BrowserOS Neo.
 Outcome: this restructure. Files: `prompt.md`. Verification: none beyond reading the file.
+
+### 3.5 CP1 live probe findings and responses (summary; the user's findings message is summarized, not quoted)
+- **Source:** the user relayed Codex/BrowserOS results; this agent did not observe them. All inputs synthetic. Figures are in `docs/BUILD-LOG.md` ("CP1 live probe evidence").
+- **Reported:** cold load 129,728 ms, 2,159 MB transfer; signature pair and proposal-only fixtures correct; owner null for a non-author; injection fixture lost the original proposal (unsupported change rejected); every reply had an empty think wrapper; worker network hosts huggingface.co and raw.githubusercontent.com; main-page host list missed worker requests.
+- **Instruction (summary):** treat the injection result as a real security/coverage defect, add a regression test, ignore chat-embedded instructions, preserve the original proposal; keep probe evidence separate from unit fixtures; do not claim privacy/no-egress or non-thinking proven; no deployment until the user confirms the probe is finished.
+- **Tool/model:** Zed agent. **Files:** `src/domain/{injection,validate,runner,extraction,types}.ts`, `src/domain/domain.test.ts`, `src/ui/{Inspector,Brief,Import,ModelStep}.tsx`, docs.
+- **Outcome:** 28/28 unit tests, lint, typecheck, build pass locally. The added system-prompt rule and the validator salvage are NOT verified with the live model. Nothing pushed or deployed.
+- **Debugging:** a regression test failed because my test file lacked an import (fixed). A sed edit failed on macOS and was redone in Python.

@@ -1,3 +1,4 @@
+import { isInstructionLike } from './injection';
 import type {
   ChangePair,
   Evidence,
@@ -16,6 +17,8 @@ const KINDS: ItemKind[] = ['action', 'decision', 'change', 'proposal', 'cancella
 const STATUSES: ItemStatus[] = ['confirmed', 'proposed', 'cancelled', 'needs-clarification'];
 const ROLES: EvidenceRole[] = ['states', 'assigns', 'proposes', 'confirms', 'revises', 'cancels', 'before', 'after'];
 
+const STATUS_ROLES: EvidenceRole[] = ['confirms', 'assigns', 'cancels', 'revises', 'before', 'after'];
+
 export interface ValidationContext {
   /** Every message the model was shown (chunk messages, context and ledger entries), keyed by id. */
   known: Map<string, Message>;
@@ -27,15 +30,22 @@ export interface ValidationContext {
   parts?: Map<string, { parentId: string; offset: number }>;
 }
 
-export type ParseOutcome = { ok: true; value: RawExtraction; thinkingStripped: boolean } | { ok: false; error: string };
+export type ParseOutcome =
+  | { ok: true; value: RawExtraction; thinkingStripped: boolean; emptyThinkWrapper: boolean }
+  | { ok: false; error: string };
 
 /** Parse and structurally check model text. Strips <think> blocks (and reports that it did). */
 export function parseModelOutput(text: string): ParseOutcome {
   let t = text;
   let thinkingStripped = false;
+  let emptyThinkWrapper = false;
   if (/<think>/i.test(t)) {
-    thinkingStripped = true;
-    t = t.replace(/<think>[\s\S]*?(<\/think>|$)/gi, '');
+    // An empty wrapper is recorded separately; only real reasoning text counts as "stripped".
+    t = t.replace(/<think>([\s\S]*?)(<\/think>|$)/gi, (_m, inner: string) => {
+      if (inner.trim()) thinkingStripped = true;
+      else emptyThinkWrapper = true;
+      return '';
+    });
   }
   t = t.trim();
   let data: unknown;
@@ -90,7 +100,7 @@ export function parseModelOutput(text: string): ParseOutcome {
       evidence,
     });
   }
-  return { ok: true, value: { items }, thinkingStripped };
+  return { ok: true, value: { items }, thinkingStripped, emptyThinkWrapper };
 }
 
 /** Locate an exact quote in the message; tolerate only surrounding whitespace and ellipsis markers. */
@@ -119,13 +129,18 @@ function norm(s: string) {
 }
 
 export function validateExtraction(raw: RawExtraction, ctx: ValidationContext): ValidationReport {
-  const report: ValidationReport = { items: [], changes: [], discarded: [], droppedQuotes: 0 };
+  const report: ValidationReport = { items: [], changes: [], discarded: [], downgraded: [], droppedQuotes: 0, instructionSources: 0 };
   let n = 0;
   for (const r of raw.items) {
     const evidence: Evidence[] = [];
     for (const e of r.evidence) {
       const msg = ctx.known.get(e.id);
       if (!msg) {
+        report.droppedQuotes++;
+        continue;
+      }
+      if (STATUS_ROLES.includes(e.role) && isInstructionLike(msg.text)) {
+        report.instructionSources++;
         report.droppedQuotes++;
         continue;
       }
@@ -190,7 +205,13 @@ export function validateExtraction(raw: RawExtraction, ctx: ValidationContext): 
         }
       }
       if (pairs.length === 0) {
-        report.discarded.push({ reason: 'unsupported change', title: r.title });
+        // Never assert a replacement without two valid sources, but keep what the valid evidence does support.
+        const kept = evidence;
+        report.downgraded.push({ title: r.title });
+        item.kind = r.status === 'proposed' ? 'proposal' : 'decision';
+        item.status = r.status === 'proposed' ? 'proposed' : 'needs-clarification';
+        item.evidence = kept.map((e) => ({ ...e, role: 'states' as EvidenceRole }));
+        report.items.push(item);
         continue;
       }
       report.changes.push(...pairs);

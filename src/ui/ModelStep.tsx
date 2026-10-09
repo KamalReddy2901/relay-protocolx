@@ -199,7 +199,7 @@ export function ModelStep({ messages, participants, only, seqStart, onResult, on
         {phase === 'download' && (
           <div className="stack" style={{ marginTop: 'var(--s-4)' }}>
             <p>
-              The model is not on this device yet. The first download is large; later visits reuse the cached files. Your chat is not uploaded.
+              The model is not on this device yet. The first download is large (about 2.2 GB when measured once on one laptop); later visits reuse the cached files. Your chat is not uploaded.
             </p>
             <div className="row">
               <Btn onClick={onBack}>Back</Btn>

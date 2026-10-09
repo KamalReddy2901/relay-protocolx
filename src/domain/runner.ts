@@ -30,6 +30,8 @@ export interface RunOutput {
   items: Item[];
   changes: ChangePair[];
   discarded: { reason: string; title: string }[];
+  downgraded: number;
+  instructionSources: number;
   coverage: Coverage;
   processedIds: string[];
   failedIds: string[];
@@ -72,6 +74,8 @@ export async function runCatchUp(input: RunInput): Promise<RunOutput> {
   const items: Item[] = [];
   const changes: ChangePair[] = [];
   const discarded: { reason: string; title: string }[] = [];
+  let downgraded = 0;
+  let instructionSources = 0;
   const chunkLog: RunOutput['chunkLog'] = [];
   const doneParts = new Map<string, Set<string>>();
   const partTotals = new Map<string, number>();
@@ -153,6 +157,8 @@ export async function runCatchUp(input: RunInput): Promise<RunOutput> {
         items.push(...v.items);
         changes.push(...v.changes);
         discarded.push(...v.discarded);
+        downgraded += v.downgraded.length;
+        instructionSources += v.instructionSources;
         return 'done';
       }
       lastError = parsed.error;
@@ -212,7 +218,7 @@ export async function runCatchUp(input: RunInput): Promise<RunOutput> {
     cancelled,
     thinkingStripped,
   };
-  return { items: rec.items, changes: rec.changes, discarded, coverage, processedIds, failedIds, seq, chunkLog };
+  return { items: rec.items, changes: rec.changes, discarded, downgraded, instructionSources, coverage, processedIds, failedIds, seq, chunkLog };
 }
 
 /** Combine a first run with a retry of its failed sections; coverage is recomputed from what actually succeeded. */
@@ -226,6 +232,8 @@ export function mergeRuns(prev: RunOutput, next: RunOutput, messages: Message[])
     items: rec.items,
     changes: rec.changes,
     discarded,
+    downgraded: prev.downgraded + next.downgraded,
+    instructionSources: prev.instructionSources + next.instructionSources,
     processedIds,
     failedIds,
     seq: next.seq,

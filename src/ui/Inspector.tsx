@@ -2,6 +2,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { forwardRef, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { formatWall } from '../domain/dates';
+import { isInstructionLike } from '../domain/injection';
 import type { Message } from '../domain/types';
 import { Btn } from './common';
 
@@ -49,6 +50,11 @@ function MessageLine({ m, entry }: { m: Message; entry?: SourceEntry }) {
         <Highlighted text={shown} start={entry.start} end={entry.end} tone={entry.label === 'Before' ? 'before-q' : ''} />
       ) : (
         shown
+      )}
+      {isInstructionLike(m.text) && (
+        <span className="small muted" style={{ display: 'block', fontFamily: 'var(--font-body)' }}>
+          This message looks like an instruction aimed at the AI. Relay treats it as chat text only and does not use it to confirm anything.
+        </span>
       )}
       {long && (
         <>
