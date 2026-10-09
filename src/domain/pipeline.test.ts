@@ -28,7 +28,10 @@ const fakeModel: GenerateFn = async (user) => {
         {
           kind: 'change', title: 'Setup venue and time changed', owner_name: null, deadline_text: null, status: 'confirmed',
           subject: 'setup venue',
-          change_fields: [{ field: 'place', before_value: 'Room B214', after_value: 'LT-2', before_id: 'm1', after_id: 'm3' }],
+          change_fields: [
+            { field: 'place', before_value: 'Room B214', after_value: 'LT-2', before_id: 'm1', after_id: 'm3' },
+            { field: 'time', before_value: '3pm', after_value: '4pm', before_id: 'm1', after_id: 'm3' },
+          ],
           evidence: [
             { id: 'm1', quote: 'confirmed for 3pm in Room B214', role: 'before' },
             { id: 'm3', quote: "moved to LT-2 at 4pm", role: 'after' },
@@ -68,7 +71,7 @@ describe('pipeline with a model double', () => {
     const out = await runCatchUp({ messages: msgs, participants: [...p.participants, { id: 'p9', displayName: 'Kamal', messageCount: 0 }, { id: 'p8', displayName: 'Arjun', messageCount: 0 }], generate: async (u, s) => { calls++; return fakeModel(u, s); } });
     expect(out.coverage.complete).toBe(true);
     expect(out.coverage.discardedCount).toBe(1);
-    expect(out.changes).toHaveLength(2);
+    expect(out.changes).toHaveLength(3);
     const people = [...p.participants, { id: 'p9', displayName: 'Kamal', messageCount: 0 }, { id: 'p8', displayName: 'Arjun', messageCount: 0 }];
     const base = { items: out.items, changes: out.changes, messages: msgs, participants: people, referenceTime: '2026-10-10T09:30:00+05:30', timezone: TZ, actions: {} };
     expect(out.items.find((i) => i.ownerRaw === 'Arjun')?.supersededBy).toBeTruthy();
@@ -77,7 +80,7 @@ describe('pipeline with a model double', () => {
     expect(kamal.actNow.map((a) => a.item.title)).toEqual(['Bring the projector to LT-2']);
     expect(kamal.actNow[0].reasons.some((r) => r.startsWith('Reassigned to you'))).toBe(true);
     expect(kamal.changed[0].affectsSelf).toBe(true);
-    expect(kamal.changed[0].pairs.length).toBe(2);
+    expect(kamal.changed[0].pairs.length).toBe(3);
     const callsAfterKamal = calls;
     const arjun = rank({ ...base, selfId: 'p8' });
     expect(arjun.actNow).toHaveLength(0);
