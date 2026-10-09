@@ -1,6 +1,16 @@
 # Release and submission record
 
-## Latest production check — 9 October 2026
+## Latest production check — 9 October 2026 (HTTP and asset verification)
+
+- Public repository: https://github.com/KamalReddy2901/relay-protocolx
+- Production URL: https://relay-protocolx.pages.dev
+- Published source: `d252507` (`Restore private WebGPU AI and prepare demo`); Cloudflare Pages production deployment `df5dddc3-05c1-4eda-9ba9-6704700c4cb7` on `main`.
+- Fresh HTTPS requests returned HTTP 200 for the production root, its referenced JavaScript (`index-CAdp7rzT.js`) and CSS (`index-Deg3Nyrz.css`). The production root and assets carry the configured CSP/security headers. The deployed JavaScript contains the private AI, WebGPU, Qwen3-4B, and explicit instant-rules UI strings.
+- This was an HTTP/asset check, not an interactive browser run. BrowserOS Neo was not available in this session. No fresh model load, live inference, model download, visual inspection, network-egress capture, or end-to-end production journey was performed for `d252507`. The previous real Qwen demo evidence below is from `895b40a`, not this deployment.
+- Local checks for `d252507`: lint, typecheck, 42/42 tests, and production build passed. The build retains upstream module-directive and large-chunk warnings.
+- No judging-portal submission was made. No submission receipt exists.
+
+## Previous production inference evidence — 9 October 2026
 
 - Public repository: https://github.com/KamalReddy2901/relay-protocolx
 - Production URL: https://relay-protocolx.pages.dev
