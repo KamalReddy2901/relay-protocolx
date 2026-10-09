@@ -77,3 +77,6 @@ The earlier entry "CP1 model probe: NOT RUN" described this Zed session when Bro
 - Cosmetic: step separators moved to CSS, native file button styled.
 - My scripted full model journey (headless Chrome, WebGPU reported true) was interrupted by the user before completing; no result from it is claimed.
 - Not claimed: V2–V12, S2–S5 rendered review, keyboard checks, deployed checks. The user is running those in Neo.
+
+## 9 Oct 2026 — base checkpoint publish (Zed)
+Before push: `npm test` 28/28, lint, typecheck, build passed locally; S1 viewport measurements at 1440/1024/390 passed. Local smoke of the S2→model→S4 journey was NOT completed (my scripted run was interrupted earlier). Pushed to main for auto-deploy; deployed result recorded in docs/RELEASE.md.

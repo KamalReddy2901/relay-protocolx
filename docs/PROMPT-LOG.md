@@ -94,3 +94,6 @@ Outcome: see BUILD-LOG "S1–S5 implementation". Before this prompt, the user's 
 
 ## Zed session, 9 Oct 2026 — CP1 live findings relayed (summary; verbatim text not duplicated here)
 User relayed BrowserOS probe findings (cold load 129,728 ms, 2,159 MB, injection fixture defect, empty think wrappers, worker hosts) and asked: regression test, ignore chat-embedded instructions, preserve the original proposal, keep probe evidence separate from unit fixtures, no unproven privacy/non-thinking claims, update prompt.md/build log, continue, no deployment until the user confirms the live probe is finished. Outcome: see BUILD-LOG "CP1 live probe evidence".
+
+## Zed session, 9 Oct 2026 — base checkpoint deploy (summary)
+User priority instruction: base first; do the minimum remaining build and local smoke checks, commit/push and deploy to the existing repo and Pages project under the already-authorized P08 Mode B; update README, RELEASE, BUILD-LOG, PROMPT-LOG; call it a live base checkpoint, not submission-ready; the final model prompt has not been re-probed; Codex handles Neo and post-deploy review; send URL and deployed commit. Outcome: see docs/RELEASE.md.

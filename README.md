@@ -2,18 +2,26 @@
 
 Know what changed, what you need to do, and which messages prove it.
 
-**Status: CP0 deployment shell only. No chat analysis or runtime model is implemented yet. Not ready for judging.**
+**Status: live BASE checkpoint. Not submission-ready, not claimed ready for judging.** The S1–S5 journey exists in code and deploys, but the full journey has not been verified end to end on the deployed site, and the current model prompt has not been re-probed.
+
+[Live site](https://relay-protocolx.pages.dev) · first action: paste a supported chat (WhatsApp export lines, or `Name: message` lines), choose who you are and the last message you read, then "Catch me up". Needs a WebGPU browser (recent Chrome/Edge) and a first download of about 2.2 GB (measured once on one laptop). Use only text you are allowed to process; this is not a hosted service.
+
+## What it does
+For a student who returns to a busy group chat: paste the text, choose your identity and last-read message (Relay cannot see your chat app's unread state), and get **Act now / What changed / For context** with exact source quotes. An explicit revision of an earlier plan is shown as a before/after redline linked to both messages. Differentiation is a product hypothesis, not a "first" claim: unread summaries, action extraction and citations already exist in major products.
+
+## How it works
+Deterministic parser (`src/domain/parser.ts`) → chunker with context and evidence ledger (`chunker.ts`) → WebLLM Qwen3-4B in a Web Worker (`src/worker`, `src/inference`) → validator (`validate.ts`: exact quotes, real message ids, change-pair rules, instruction-like text never confirms anything) → conservative reconcile → deterministic ranking (`rank.ts`). Results come only from live inference on your text; there is no canned or sample output and no cloud fallback. Stack: React, TypeScript, Vite, `@mlc-ai/web-llm` 0.2.85, Cloudflare Pages (static).
+
+## Evidence so far (be skeptical)
+- Unit tests: 28 passing (parser, validator, runner with a labelled model test double, chunking, retry, injection regression).
+- Live probe on the earlier probe build (`e29851f`), synthetic fixtures only, reported by the participant/Codex: Qwen3-4B cold load 129.7 s on one WebGPU/Metal laptop, warm load from cache, signature change found, proposal stayed Proposed, one injection fixture lost a valid proposal (fixed in code; fix not re-probed live). See `docs/BUILD-LOG.md`.
+- Not verified: the complete deployed journey, thinking mode (empty `<think>` markers still appear), a no-network-egress guarantee, other devices, long chats, accessibility and visual checks beyond the three S1 viewports, all acceptance checks AC1–AC22.
+
+## Limitations
+Extraction can be wrong; quote checks show source, not meaning. Only the listed formats are supported; English assumed. 10–40 s per section was observed, so long chats take minutes. Hardware without WebGPU cannot run it. Targeted second reconciliation pass not implemented. No accuracy figure is claimed.
 
 ## Development
-
-Node 22.23.3 and npm 10.9.9. Run `npm ci`, `npm run dev`. Checks: `npm run lint`, `npm run typecheck`, `npm run build`. Output: `dist`.
-
-Reviewed contracts: SPEC.md and DESIGN.md. Deployment evidence: docs/RELEASE.md. No environment secrets are required by this shell.
+Node 22.23.3, npm 10.9.9: `npm ci`, `npm run dev`; checks `npm test`, `npm run lint`, `npm run typecheck`, `npm run build` (output `dist`). QA scripts: `scripts/qa/` (need local Chrome). No secrets are required.
 
 ## AI assistance
-
-Planning documents: Opus 5.5 through Figma Make, as reported by the participant. Review and shell: Codex in this conversation. Planned runtime: WebLLM with Qwen3-4B, not implemented or tested yet. See docs/PROMPT-LOG.md for record limits.
-
-## Deployment
-
-[Live shell](https://relay-protocolx.pages.dev) · Git-connected Cloudflare Pages project `relay-protocolx`. Verified CP0 commit: `586ff5e`. Full release evidence is in docs/RELEASE.md.
+Planning documents: Figma Make (as reported by the participant). Implementation: Zed agent and Codex. Runtime AI: WebLLM + Qwen3-4B in the browser. Records: `prompt.md`, `docs/PROMPT-LOG.md`, `docs/BUILD-LOG.md` (with gaps noted there). Contracts: `SPEC.md`, `DESIGN.md`. Release evidence: `docs/RELEASE.md`.
