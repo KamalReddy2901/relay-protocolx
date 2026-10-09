@@ -138,3 +138,13 @@ Actual participant instruction: “bro please finish the entire thing in one go 
 Tool: Codex; Figma Make/Opus attribution reported by participant. Purpose: replace the rejected paper aesthetic with Night Shift, preserve real domain behavior and package submission. Files: DESIGN.md, UI, CSS, font imports/dependencies, favicon, README and submission docs.
 Outcome: asymmetric intake, highlighted task titles, actual count navigation, grouped changes, decorative source-linked rail, on-demand proof drawer, clipboard success/error state. No synthetic sample output added.
 Verification: lint and 33 tests pass; production build passes after correcting unavailable font subpath. Local browser at 1440 and 390 showed no horizontal overflow; display font resolved to Bricolage. Mobile review screenshot inspected. Live c10fb40 inference recovered task and owner change, but omitted schedule details; completeness not claimed. New redesign production check follows deployment.
+
+## P11/P12 final verification and requested demo fixture — 9 Oct 2026
+
+**Participant instruction (verbatim):** “hey, I freed up some storage...please check now and continue....we should we ready to submit now” and “hey, after this, also give me the perfect sample .txt file to test the app- I'll be using the same for demo too later”. The participant also supplied the P11 audit and P12 package prompts from Craft. Their bodies are preserved in the user-provided paste, not reconstructed in this log.
+
+**Tool/model:** Codex (model ID not recorded); BrowserOS Neo for public production checks; real runtime Qwen3-4B/WebLLM. **Purpose:** rerun the signature and proposal-only scenarios, complete the bounded P11 audit, prepare P12 files and the explicitly synthetic `.txt` fixture.
+
+**Files:** `examples/SYNTHETIC-SIGNATURE-DEMO.txt`, `README.md`, `docs/SUBMISSION.md`, `docs/RELEASE.md`, `docs/REVIEW.md`, `docs/verification.md`, `docs/BUILD-LOG.md`, and `prompt.md`. No application source code changed in this pass.
+
+**Outcome / verification:** see `docs/BUILD-LOG.md` and `docs/verification.md`. Real production inference passed AC7/AC8 for the described synthetic inputs. 35 tests, lint, typecheck, build and 11 configured contrast checks passed. Public repo/privacy checks are limited as documented. Overall P11 status: INSUFFICIENT VERIFICATION. No portal submission.

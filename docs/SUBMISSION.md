@@ -1,12 +1,16 @@
-# Submission fields
+# ProtocolX submission draft — do not transmit from this file
 
-Operator: Kamal (use your exact registered name).
-Repository: https://github.com/KamalReddy2901/relay-protocolx
-Live project: https://relay-protocolx.pages.dev
-Upload: root prompt.md from this checkout.
+**Operator name:** Kamal (enter the exact name registered with the event).
 
-Description: Relay turns unread group conversations into a personal handover: what needs you, what changed, and the source messages proving it. It runs Qwen3-4B locally through WebLLM, validates exact quotations, ranks by your identity and read boundary, and shows changes through an evidence drawer. The Night Shift interface highlights personal actions and keeps context quiet until needed.
+**Source repository:** https://github.com/KamalReddy2901/relay-protocolx
 
-GenAI services: Zed agent for initial implementation (model self-reported); Codex for implementation, debugging and browser verification; Figma Make for specification and art direction (Opus reported by participant). Runtime AI: Qwen3-4B via WebLLM in-browser WebGPU. No cloud inference.
+**Deployed project:** https://relay-protocolx.pages.dev
+**Upload:** the repository-root `prompt.md`.
 
-Known limits: WebGPU and a large initial model download required. Extraction may omit valid information; no accuracy guarantee. Complete means selected messages were processed, not every fact recovered. No real permitted chat has yet been supplied for testing. Full AC suite is not independently verified on production. Portal submission has not been performed.
+**Description:** Relay turns unread group conversations into a personal handover: what needs you, what changed, and the source messages behind each item. It uses Qwen3-4B locally through WebLLM, validates source IDs and exact quotations, ranks results for the selected identity/read boundary, and presents plan changes as source-linked redlines.
+
+**GenAI disclosure:** Qwen3-4B via WebLLM/WebGPU performs runtime extraction in the browser. Zed and Codex assisted development; Figma Make was used for planning/design (Opus 5.5 is participant-reported). The full chronology and interaction records are in `prompt.md`. No cloud inference service is used.
+
+**Honest limits:** WebGPU and a first-use model download of about 2.2 GB are required. Extraction can omit or misinterpret information; exact citations do not prove correctness. The two production inference checks used a synthetic scenario, not a real permitted chat. The synthetic fixture is labeled and is not a precomputed answer. No full network-egress audit or complete AC1–AC22 production run has been completed. Portal submission has not been performed.
+
+**Portal checklist:** public GitHub repository; deployed URL; short accurate description; root `prompt.md` uploaded. Before using a scored attempt, confirm the portal is accepting submissions and review the uploaded file and final URLs. The event deck states up to three scored submissions and that only the final attempt score counts; it also documents a 12:30–1:00 PM bonus window. Do not infer an extension from a portal still being reachable, and do not claim a bonus after the published window without organizer confirmation.

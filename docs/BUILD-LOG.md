@@ -114,3 +114,15 @@ Final production browser observation: https://relay-protocolx.pages.dev/?final=n
 
 ## Final storage recovery and runtime retest
 The participant reported freeing storage and asked if the release was ready. Current free disk was 10 GiB. The previously downloaded Relay WebLLM model occupied about 2.28 GB in the browser cache, then no cache was present at start of this run. Download succeeded at 2.28 GB; real local Qwen3-4B inference completed the synthetic 2-message run in the redesigned production app. It found the personal projector task/reassignment but still missed schedule venue/time change. This reproduced an extraction gap, so I added a bounded audit trigger for explicit revision language plus a prior confirmed time even when initial extraction returns no changes. It asks the local model for evidence; it does not create deterministic outputs. New test ensures the audit runs when first output contains no change. 34 tests, lint and build pass. New fix needs deployed retest before readiness.
+
+## 9 Oct 2026 — latest production signature recheck (Codex / BrowserOS Neo)
+
+Fresh reload of `https://relay-protocolx.pages.dev/?audit-fix=895b40a` served `index-Wo0d1J8Y.js` and `index-Deg3Nyrz.css`. A local production build from source commit `895b40a` emits the same asset names. No Cloudflare deployment ID was captured.
+
+**Real inference, synthetic signature input:** imported three WhatsApp-style messages, selected DMY, timezone Asia/Calcutta, identity Kamal, last-read m1. Qwen3-4B through WebLLM produced 1 Needs You, 1 Changed, 0 For Context. Visible action: “Kamal, please grab the projector instead”; task date: “No date given”. Visible change: Room B214 · Arjun · 3pm → LT-2 · Kamal · 4pm with source links m1 and m3. This closes the previously observed missing 3pm→4pm defect for this scenario; it is not general accuracy evidence.
+
+**Real inference, proposal-only variant:** removed m3 and reran with the same identity/read boundary. Result: 0 Needs You, 0 Changed, 1 For Context; “Proposed — Change setup time” cited m2. The model did not treat “could we do 4?” as a confirmed revision.
+
+**Current local checks:** 35/35 tests; lint; typecheck; production build; 11/11 configured contrast pairs. Build succeeded with upstream module-directive and large-chunk warnings. Anonymous GitHub API reported the repository public; raw public prompt.md returned 200/content; production root returned HTTP 200 with CSP and security headers.
+
+**P11/P12:** `docs/verification.md` records observed and unverified ACs and concludes INSUFFICIENT VERIFICATION. `README.md`, `docs/RELEASE.md`, and `docs/SUBMISSION.md` now describe the current result and limitations. `examples/SYNTHETIC-SIGNATURE-DEMO.txt` is an explicit synthetic fixture; no answers are embedded. No portal action or submission was made. Published deck's 3:00 PM main-challenge end is past at note time; portal reachability does not establish an extension.
