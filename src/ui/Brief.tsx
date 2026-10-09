@@ -235,18 +235,19 @@ export function Brief(props: Props) {
     return (
       <div className="change" data-selected={sel?.key === key}>
         <button className="change-btn" data-sel={key} onClick={(e) => select(key, e)} aria-label={`Open sources for change: ${g.pairs.map((p) => `${p.field} was ${p.before.value}, now ${p.after.value}`).join('; ')}`}>
-          {g.pairs.map((p) => (
-            <div className="pair" key={p.id}>
-              <span className="field">{p.field === 'place' ? 'Place' : p.field[0].toUpperCase() + p.field.slice(1)}</span>
-              <span>
+          <span className="redline">
+            {g.pairs.map((p, i) => (
+              <span className="pair" key={p.id}>
+                {i > 0 && <span className="pair-separator" aria-hidden="true">·</span>}
+                <span className="field">{p.field === 'place' ? 'Place' : p.field[0].toUpperCase() + p.field.slice(1)}:</span>
                 <span className="sr-only">Before: </span>
                 <span className="before">{p.before.value}</span>
                 <span className="arrow" aria-hidden="true">→</span>
                 <span className="sr-only"> After: </span>
                 <span className="after">{p.after.value}</span>
               </span>
-            </div>
-          ))}
+            ))}
+          </span>
         </button>
         <div className="meta">
           {Refs({ ids: [p0.before.evidence.messageId, p0.after.evidence.messageId], keyOf: key })}

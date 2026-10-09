@@ -135,11 +135,13 @@ progress { width: 100%; height: 12px; accent-color: var(--current); }
 .change[data-selected='true'], .act[data-selected='true'], .ctx[data-selected='true'] { border-left-color: var(--ink); background: var(--paper); }
 .change-btn { display: block; width: 100%; text-align: left; border: 0; background: none; cursor: pointer; padding: var(--s-1) 0; }
 .change-btn:hover { background: var(--paper); }
-.pair { display: grid; grid-template-columns: 9ch minmax(0, 1fr); gap: var(--s-3); align-items: baseline; padding: 2px 0; }
-.pair .field { font-family: var(--font-data); font-size: var(--text-xs); }
-.before { text-decoration: line-through; color: var(--revise); background: var(--revise-wash); padding: 0 var(--s-1); }
-.after { color: var(--ink); background: var(--current-wash); font-weight: 600; padding: 0 var(--s-1); }
-.arrow { margin: 0 var(--s-2); }
+.redline { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-1) var(--s-2); }
+.pair { display: inline-flex; flex-wrap: wrap; gap: 0 var(--s-1); align-items: baseline; }
+.pair .field { font-family: var(--font-data); font-size: var(--text-xs); color: var(--ink-2); }
+.pair-separator { color: var(--ink-2); margin-right: var(--s-1); }
+.before { text-decoration: line-through; text-decoration-color: var(--revise); text-decoration-thickness: 1.5px; color: var(--revise); }
+.after { color: var(--ink); font-weight: 500; text-decoration: underline; text-decoration-color: var(--current-wash); text-decoration-thickness: 3px; text-underline-offset: 3px; }
+.arrow { margin: 0 var(--s-1); color: var(--ink-2); font-weight: 400; }
 .foryou { margin-top: var(--s-2); }
 .ctx { padding: var(--s-2) var(--s-3); margin-left: calc(-1 * var(--s-3)); border-left: 3px solid transparent; color: var(--ink-2); }
 .ctx .ctx-title { color: var(--ink); }
@@ -149,7 +151,7 @@ progress { width: 100%; height: 12px; accent-color: var(--current); }
 
 /* inspector */
 .inspector { border: 1px solid var(--rule-strong); border-radius: var(--radius-2); background: var(--sheet); padding: var(--s-4); }
-.margin-col { align-self: start; position: sticky; top: var(--s-4); }
+.margin-col { align-self: start; position: sticky; top: var(--s-4); max-height: calc(100vh - 2 * var(--s-4)); overflow-y: auto; overscroll-behavior: contain; }
 .inspector .empty { color: var(--ink-2); }
 .inspector h2 { font-family: var(--font-body); font-size: var(--text-md); font-weight: 600; }
 .src { margin-top: var(--s-4); }

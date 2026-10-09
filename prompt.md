@@ -108,3 +108,6 @@ Outcome: this restructure. Files: `prompt.md`. Verification: none beyond reading
 
 ### 3.8 Packaging note (summary)
 User relayed: required portal items are the public repo, the deployed URL (deck says required), a brief description and root `prompt.md` stating which GenAI services were used and where; deck rejects fake/static/canned output and features failing end-to-end; scoring emphasis UI/UX and code quality high, security/accessibility/innovation medium, testing/docs lower, working features and link manually checked; max 3 scored attempts, only the last counts; do not submit during this iteration. Asked to make prompt.md truthful about today's production run. Outcome: this revision. No prompts were reconstructed beyond those recorded here.
+
+### 3.10 Focused UI refinements from Figma Make review (summary of actual prompt)
+The user asked for speed. Codex acted on the Figma Make / Claude Opus 5.5 static source review (not a rendered screenshot review). Make recommended grouping related changes into one redline, removing badge-like before/after fills, and bounding the source panel's scroll height. Codex changed `src/ui/Brief.tsx` and `src/index.css`; local verification: tests 30/30, lint and build passed. Production verification is pending. The exact user request and review outcome are in `docs/PROMPT-LOG.md` and `docs/BUILD-LOG.md`.

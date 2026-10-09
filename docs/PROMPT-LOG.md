@@ -105,3 +105,17 @@ Verbatim defect prompt and summary of the packaging note are recorded in prompt.
 > aghhh so what do we do? Continueeee quickkkk
 
 Purpose: continue from the deployed base, verify the signature interaction, and move into UI refinement. Outcome: removed an uncommitted QA-only raw-prompt trace hook; updated the page title/description and added a redline-themed SVG favicon; clarified extraction instructions and extended the internal synthetic pipeline fixture for simultaneous time/place changes. Local tests (30/30), lint, typecheck, and production build passed. Metadata/favicon commit `a5c6a54` is live. A live BrowserOS Neo run with actual Qwen3-4B inference on a synthetic four-message chat after `a5aa1ff` showed the 3pm→4pm and B214→LT-2 redlines, but omitted the Act now task and gave the misleading consequence “you now setup (was Arjun).” An earlier `c20b386` run surfaced the task but missed time/place redlines. No suggestions were discarded. The current local prompt rule separates event changes from task reassignment and requests a separate action item; it is not deployed or live-tested. No output was fabricated.
+
+## 9 Oct 2026 — Figma Make / Opus 5.5 UI review (summary of actual prompt)
+- **Prompt:** asked Opus to review the live Relay app against the accepted `DESIGN.md`, make no GitHub edits, and return at most three high-impact UI refinements while preserving the warm editorial handover, redlines, source margin, readability, and behavior. It was asked to distinguish observation from recommendation and disclose if it could not inspect the live app.
+- **Tool/model:** Figma Make chat, Claude Opus 5.5 (as shown in the UI).
+- **Purpose/files:** static UI/code review; no files changed by Make.
+- **Outcome:** Make disclosed it could not inspect a rendered page or take screenshots and reviewed source-level details only. Recommendations: combine related change fields on one redline; remove badge-like before/after fills; bound the source margin's height and scrolling. Its header-width concern did not match current CSS and was not applied.
+- **Verification:** no rendered observation from Make. Codex implemented the three source-level refinements in `src/ui/Brief.tsx` and `src/index.css`; local checks recorded in `docs/BUILD-LOG.md`. Production browser verification pending.
+
+## 9 Oct 2026 — UI refinement request (verbatim)
+> please make it fast- we don't have much time
+
+- **Tool/model:** Codex.
+- **Purpose/files:** carry out the focused UI refinements based on the Make review; `src/ui/Brief.tsx`, `src/index.css`, `prompt.md`, and build log.
+- **Outcome/verification:** combined redline markup, badge-like fills removed, bounded evidence-panel scrolling. `npm test` 30/30, lint and production build passed. Deployment and rendered review are pending.
