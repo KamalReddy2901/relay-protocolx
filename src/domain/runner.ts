@@ -1,5 +1,5 @@
 import { LEDGER_BUDGET, planChunks, rangeLabel, splitPlan, type ChunkPlan } from './chunker';
-import { buildUserPrompt, estimateTokens, serializeMessage, systemPromptFor } from './extraction';
+import { buildUserPrompt, estimateTokens, serializeMessage, SYSTEM_PROMPT } from './extraction';
 import { reconcile } from './reconcile';
 import { omissionChecks, explicitTimeRevisions, OMISSION_SYSTEM_PROMPT } from './omissions';
 import type { ChangePair, Coverage, Item, Message, Participant } from './types';
@@ -110,7 +110,7 @@ export async function runCatchUp(input: RunInput): Promise<RunOutput> {
     const ledger = buildLedger(plan);
     const unitMsgs = plan.units.map((u) => u.message);
     const prompt = buildUserPrompt(unitMsgs, context, ledger);
-    const system = systemPromptFor(ledger.length > 0);
+    const system = SYSTEM_PROMPT;
 
     const known = new Map<string, Message>();
     for (const m of context) known.set(m.id, m);

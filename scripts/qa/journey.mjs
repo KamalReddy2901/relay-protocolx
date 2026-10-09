@@ -1,4 +1,4 @@
-// Core journey in real Chrome with WebGPU. Usage: node scripts/qa/journey.mjs <fixture> <name> [baseUrl]
+// Core journey in real Chrome (no model, no WebGPU needed). Usage: node scripts/qa/journey.mjs <fixture> <name> [baseUrl]
 import { chromium } from 'playwright-core';
 import * as F from './fixtures.mjs';
 
@@ -12,7 +12,7 @@ const ctx = await chromium.launchPersistentContext('/tmp/qa/profile', {
   executablePath: CHROME,
   headless: true,
   viewport: { width: 1440, height: 900 },
-  args: ['--enable-unsafe-webgpu', '--enable-features=WebGPU', '--use-angle=metal', '--ignore-gpu-blocklist'],
+  args: [],
 });
 const page = ctx.pages()[0] ?? (await ctx.newPage());
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
@@ -29,9 +29,8 @@ page.on('pageerror', (e) => log('PAGEERROR', e.message));
 page.on('console', (m) => m.type() === 'error' && log('CONSOLE', m.text().slice(0, 200)));
 
 await page.goto(base);
-log('webgpu', await page.evaluate(async () => !!navigator.gpu && !!(await navigator.gpu.requestAdapter())));
 await page.fill('textarea', fixture);
-await page.getByRole('button', { name: 'Review messages' }).click();
+await page.getByRole('button', { name: /Start shift/ }).click();
 await page.waitForSelector('text=Check the messages');
 await page.screenshot({ path: shot('s2'), fullPage: true });
 const radios = page.getByRole('radio', { name: /Day\/Month\/Year/ });
@@ -41,12 +40,8 @@ await page.getByLabel('My name').fill(name);
 await page.getByLabel(/Other people mentioned/).fill('Arjun, Kamal');
 await page.getByRole('button', { name: 'Catch me up' }).click();
 log('catch me up clicked');
-const dl = page.getByRole('button', { name: 'Download model' });
-if (await dl.count()) { log('download needed'); await dl.click(); }
 const t0 = Date.now();
-await page.waitForSelector('text=/Getting the model ready|Reading your messages/', { timeout: 60000 });
-await page.screenshot({ path: shot('s3') });
-await page.waitForSelector('h1:has-text("catch-up for")', { timeout: 900000, state: 'attached' }).catch(async () => {
+await page.waitForSelector('text=/Your shift|Partial shift/', { timeout: 900000, state: 'attached' }).catch(async () => {
   log('timeout waiting for brief; body:', (await page.innerText('body')).slice(0, 600));
 });
 log('brief ready after', Math.round((Date.now() - t0) / 1000), 's');

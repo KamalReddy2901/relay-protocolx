@@ -23,6 +23,7 @@ interface Props {
   onChange: (s: Partial<Settings>) => void;
   onBack: () => void;
   onContinue: () => void;
+  onQuickRules: () => void;
 }
 
 const ZONES: string[] = (() => {
@@ -50,7 +51,7 @@ export function blockingReason(parse: ParseResult, settings: Settings): string |
   return null;
 }
 
-export function Review({ parse, participants, unreadCount, settings, referenceTime, onChange, onBack, onContinue }: Props) {
+export function Review({ parse, participants, unreadCount, settings, referenceTime, onChange, onBack, onContinue, onQuickRules }: Props) {
   const heading = useHeadingFocus(false);
   const [filter, setFilter] = useState('');
   const issuesId = useId();
@@ -195,9 +196,11 @@ export function Review({ parse, participants, unreadCount, settings, referenceTi
           <div className="row">
             <Btn onClick={onBack}>Back</Btn>
             <Btn primary reason={reason} onClick={onContinue}>
-              Catch me up
+              Catch me up with private AI
             </Btn>
           </div>
+          <p className="small muted">Relay downloads Qwen3-4B to this device on first use (about 2.2 GB). Your chat stays in this browser; model files come from Hugging Face.</p>
+          <Btn onClick={onQuickRules} reason={reason}>Use instant rules (no model)</Btn>
         </div>
       </main>
     </>

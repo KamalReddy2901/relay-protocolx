@@ -19,9 +19,10 @@ interface Props {
   seqStart?: number;
   onResult: (out: RunOutput) => void;
   onBack: () => void;
+  onQuickRules: () => void;
 }
 
-export function ModelStep({ messages, participants, only, seqStart, onResult, onBack }: Props) {
+export function ModelStep({ messages, participants, only, seqStart, onResult, onBack, onQuickRules }: Props) {
   const heading = useHeadingFocus(false);
   const [phase, setPhase] = useState<Phase>('checking');
   const [cap, setCap] = useState<Capability | null>(null);
@@ -171,8 +172,8 @@ export function ModelStep({ messages, participants, only, seqStart, onResult, on
               <p>Relay needs WebGPU to run the model in your browser. Try recent Chrome or Edge on a laptop with a GPU.</p>
               {cap?.reason && <p className="small muted">Detected: {cap.reason}</p>}
             </ErrorNotice>
-            <p className="small muted">No output is generated on devices that cannot run the model. Relay does not fall back to fake results.</p>
-            <Btn onClick={onBack}>Back</Btn>
+            <p className="small muted">The private AI run is unavailable here. You can still get a clearly labeled, rule-based catch-up on this device.</p>
+            <div className="row"><Btn onClick={onBack}>Back</Btn><Btn primary onClick={onQuickRules}>Use instant rules instead</Btn></div>
           </div>
         )}
 
@@ -262,6 +263,7 @@ export function ModelStep({ messages, participants, only, seqStart, onResult, on
               >
                 Retry
               </Btn>
+              <Btn onClick={onQuickRules}>Use instant rules instead</Btn>
             </div>
           </div>
         )}

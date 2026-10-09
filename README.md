@@ -1,89 +1,73 @@
-# Relay — "What did I miss?"
+# Relay — What did I miss?
 
-**A personal handover for the group chat you have not read.** Paste a chat, say who you are and the last message you read, and Relay returns what needs *you*, what *changed* while you were away, and the exact source messages behind every item. Everything runs on your device.
+**A private, source-linked handover for a group chat you have not read.** Choose who you are and where you stopped. Relay separates your next actions from changed plans and background context, then lets you open the original messages behind each result.
 
 - **Live app:** https://relay-protocolx.pages.dev
 - **Source:** https://github.com/KamalReddy2901/relay-protocolx
-- **Challenge:** ProtocolX — "The Unread Problem — What Did I Miss?"
-- **Login:** none. No accounts, no API keys, no test credentials needed.
+- **Challenge:** ProtocolX, “The Unread Problem — What Did I Miss?”
 
-## Problem-statement alignment
+## Why Relay for this problem?
 
-| Challenge goal | How Relay does it |
+A general chatbot can summarize pasted messages. Relay is built around the catch-up decision: **what changed since I last read, which change affects me, what should I do, and where did that come from?** It uses the selected identity and last-read boundary, ranks actions for that person, and presents plan revisions as an old → new line linked to both messages. A proposal stays separate from a confirmed change.
+
+The primary analysis uses Qwen3-4B through WebLLM and WebGPU in a browser worker. The model runs on the device; chat text is not sent to a Relay server. The first run downloads model files from Hugging Face (the model is large); later runs can reuse the browser cache. If WebGPU is unavailable or the user wants an immediate result, Relay offers an explicitly labeled rule-based mode. The mode that produced a brief is identified in its “About and limits” section.
+
+| Challenge need | Relay behavior |
 |---|---|
-| Summarize long/unread conversations | Only messages after your chosen last-read point are processed; long chats are chunked with context and coverage is shown (incomplete runs are labelled partial). |
-| Identify important messages, decisions, action items | Brief sections: **Needs you**, **Changed**, **For context**. |
-| Prioritize by urgency and relevance | Deterministic ranking: tasks for the selected person first, then by deadline, then changes, then context. |
-| Highlight mentions, deadlines, tasks missed | Items assigned to or mentioning you are highlighted; deadlines are only shown when the chat states one (otherwise "No date given"). |
-| Local-first processing | Qwen3-4B runs in your browser via WebLLM + WebGPU in a Web Worker. No inference server, no cloud AI, no database. Chat text is never sent to a server by the app. |
+| Understand an overwhelming chat | Import or paste supported text, review parsing, select identity and last-read message, then get a short personal brief. |
+| Identify decisions and action items | **Act now**, **What changed**, and **For context**, with reasons and source links. |
+| Prioritize urgency and relevance | Deterministic ranking uses the selected person, explicit deadline, and changes after the read boundary. No deadline is invented. |
+| Highlight mentions, deadlines and missed tasks | Addressed actions are highlighted; users can mark Done/Not mine, edit an owner/date, or switch identity. |
+| Keep conversations on the device | WebLLM inference runs locally in a Web Worker; the app has no chat backend or account. The model files themselves are downloaded from Hugging Face. |
 
-**What makes it different:** a before → after *redline* for plan changes (e.g. Room B214 → LT-2, 3pm → 4pm) linked to both source messages, and a strict rule that a question ("could we do 4?") stays *Proposed* until a later message confirms it.
+## The demo
 
-## How to try it (2 minutes)
+Use [`examples/SYNTHETIC-HANDOVER-DEMO.txt`](examples/SYNTHETIC-HANDOVER-DEMO.txt). It is a **synthetic** conversation created for demonstration, not a real chat. At review, use `Asia/Kolkata`, add yourself as **Kamal** and **Arjun** as a person mentioned but not speaking, then mark **m1** as the last message read.
 
-Requirements: desktop Chrome or Edge with **WebGPU**, a few GB of free memory, and a connection for the **one-time ~2.2 GB model download** (cached afterwards).
+Then select **Catch me up with private AI**. The first use may need WebGPU setup and a large model download; do not start it until the model is ready if the demo window is short. The fallback is **Use instant rules (no model)**. The expected story is:
 
-1. Open the live app and paste a chat, or paste the contents of [`examples/SYNTHETIC-SIGNATURE-DEMO.txt`](examples/SYNTHETIC-SIGNATURE-DEMO.txt) (a disclosed *synthetic* chat, used only as input; the output is generated fresh by the model).
-2. Confirm date order/timezone if asked, choose **who you are** and **the last message you read**.
-3. Click run. Wait for the model to download and load (progress and Cancel are shown).
-4. Read the brief; open any item's **source** to see the original messages. Mark items Done / Not mine, switch identity, run again, or start over.
+1. Kamal’s check-in sheet tasks appear under **Act now**, with the stated deadlines.
+2. The showcase changes from **3pm · Room B214** to **4pm · LT-2**, with both source messages available.
+3. The projector handover moves from Arjun to Kamal, changing whose action needs attention.
+4. The livestream remains a **proposal**, and the rehearsal is **cancelled**; neither is confused with the confirmed showcase plan.
 
-If your browser lacks WebGPU, the app says so up front instead of failing silently.
+Open the source references to show the original messages. Switch the identity to Arjun to show the personal view change. The “Why not ChatGPT?” answer: *ChatGPT can summarize a pasted chat; Relay makes the last-read boundary and “who am I?” first-class, then turns revisions into a two-source redline and reranks the next actions for that person. Its Qwen model runs on the device.*
 
-## Features
+## How it works
 
-- Import by paste or plain-text export (WhatsApp-style formats); parse review with issue reporting.
-- Date-order and timezone handling for ambiguous exports.
-- Real on-device LLM extraction with JSON-schema-constrained output.
-- Evidence validation: every item must cite real message IDs and exact quoted text, otherwise it is dropped or downgraded.
-- Conservative change reconciliation (confirmed vs. proposed).
-- Prompt-injection guard: instruction-like text inside a chat is treated as data.
-- Source inspector, Done / Not mine / Edit / Undo, retry failed chunks, copy brief.
-- Dark "Night Shift" theme with light-theme and reduced-motion support.
-
-## Architecture
-
-```
-src/ui         screens: import, review, model setup, brief, source inspector
-src/inference  capability check, session, engine adapter
-src/worker     WebLLM Web Worker
-src/domain     parser, chunker, extraction prompt, validate, reconcile, rank, dates, injection guard, runner
+```text
+src/ui      import → review → on-device AI or disclosed rules → personal brief → source inspector
+src/domain  parser · chunker · extraction validation · reconciliation · ranking · dates · instruction guard
+src/inference WebLLM adapter → Web Worker → WebGPU
 ```
 
-Static React 19 + TypeScript + Vite site on Cloudflare Pages with a strict CSP (`public/_headers`). The model is the only AI component; parsing, validation, ranking and deadline logic are plain, unit-tested TypeScript. See [`SPEC.md`](SPEC.md) and [`DESIGN.md`](DESIGN.md).
+The parser recognizes the supported chat text formats, flags ambiguous dates and applies the user-selected read boundary. The extractor proposes structured items. The validator checks source IDs, exact quotes and change pairs; reconciliation links revisions and retires replaced assignments; ranking is deterministic for the selected person. Chat lines are treated as data, including instruction-like text.
 
-## GenAI services used
+## GenAI disclosure
 
-- **Runtime (in the product):** WebLLM 0.2.85 running `Qwen3-4B-q4f16_1-MLC` in the browser. Used for extracting tasks, changes and context from the pasted chat. No canned or hard-coded output.
-- **Development:** Zed agent (Claude Sonnet 5.5), Codex via BrowserOS Neo for browser probes, Figma Make for design exploration. Full record in [`prompt.md`](prompt.md).
+- **Runtime AI:** Qwen3-4B-q4f16_1-MLC through WebLLM, executed locally using WebGPU. The model files are fetched from Hugging Face; chat content is processed in the browser worker. The app also has a separate, explicitly labeled rule-based fallback that does not use a model.
+- **Development:** tools and models are recorded in [`prompt.md`](prompt.md) and [`docs/PROMPT-LOG.md`](docs/PROMPT-LOG.md). Model names are marked as reported when not independently verified.
 
-## Security and privacy
+## Privacy, security, accessibility
 
-- No server, no secrets, no analytics; chat text lives in memory only.
-- The only network traffic is static assets and the model weights from Hugging Face (allow-listed in the CSP).
-- Model output is untrusted: schema-constrained, then validated against the source text before display.
-- Not a certified privacy guarantee; a full network-capture audit was not performed.
+Chat text and generated results are held in browser memory; Start over clears the active session. There is no app server, account, analytics service, or database. React renders chat as text, and evidence links point to validated message spans. The CSP permits the WebLLM worker and model-file hosts needed for local inference; that is not a claim of a completed packet-capture audit. Review a source before acting on an extraction.
 
-## Accessibility
+The interface uses semantic controls, visible focus, keyboard-operable source inspection, reduced-motion support, responsive layouts, and self-hosted fonts. See `DESIGN.md` and `docs/verification.md` for the visual contract and the checks that remain unverified.
 
-Visible focus styles, keyboard-operable controls and source inspector, semantic structure, light/dark themes, reduced-motion support, and 11/11 configured colour-contrast pairs (`node scripts/contrast.mjs`).
+## Limits
 
-## Known limits
-
-- First run needs WebGPU and a ~2.2 GB download; unsupported devices cannot run inference.
-- A 4B model can miss or misread items. Citations show *where* a claim came from, not that it is interpreted correctly — check the originals.
-- Unread state is chosen by the user, not detected.
+The model can miss or misinterpret informal language; exact citations establish provenance, not correctness. The rule-based fallback covers a narrower set of English patterns. The user supplies the conversation and last-read point; Relay cannot see the chat app’s unread state. WebGPU support and available device memory vary. The synthetic demo is not evidence of accuracy on real conversations, and no accuracy or time-saving score is claimed.
 
 ## Development
 
 ```sh
 npm ci
-npm run dev        # local dev server
-npm test           # 35 unit/pipeline tests
+npm run dev
+npm test
 npm run lint
 npm run typecheck
 npm run build
 node scripts/contrast.mjs
 ```
 
-Node and npm versions are pinned in `package.json` and `.nvmrc`. CI (`.github/workflows/check.yml`) runs the checks on push. Further notes: [`docs/verification.md`](docs/verification.md), [`docs/REVIEW.md`](docs/REVIEW.md), [`docs/RELEASE.md`](docs/RELEASE.md).
+Node and npm versions are pinned in `package.json` and `.nvmrc`. See [`SPEC.md`](SPEC.md), [`DESIGN.md`](DESIGN.md), and [`docs/verification.md`](docs/verification.md).

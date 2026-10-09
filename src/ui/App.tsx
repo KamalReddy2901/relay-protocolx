@@ -3,9 +3,9 @@ import { applyReadBoundary, InputTooLargeError, parseChat } from '../domain/pars
 import { mergeRuns, type RunOutput } from '../domain/runner';
 import { nowIso } from '../domain/time';
 import type { Participant, UserAction } from '../domain/types';
-import { dropEngine } from '../inference/session';
 import { Brief } from './Brief';
 import { FORMAT_EXAMPLES, Import } from './Import';
+import { Analyze } from './Analyze';
 import { ModelStep } from './ModelStep';
 import { Review, type Settings } from './Review';
 
@@ -38,6 +38,7 @@ function initialState() {
     actions: {} as Record<string, Record<string, UserAction>>,
     retry: null as { only: Set<string>; seqStart: number } | null,
     viewingAs: '',
+    analysisMode: 'ai' as 'ai' | 'rules',
   };
 }
 
@@ -108,12 +109,12 @@ export function App() {
       result: null,
       actions: {},
       viewingAs: '',
+      analysisMode: 'ai',
     }));
     return null;
   }, []);
 
   const startOver = useCallback(() => {
-    void dropEngine();
     setTouched(true);
     setNotice('Chat, results and acknowledgments were deleted from this browser.');
     setState(initialState());
@@ -153,7 +154,11 @@ export function App() {
         onChange={(s) => setState((st) => ({ ...st, settings: { ...st.settings, ...s } }))}
         onBack={() => go('import')}
         onContinue={() => {
-          setState((st) => ({ ...st, retry: null, viewingAs: '' }));
+          setState((st) => ({ ...st, retry: null, viewingAs: '', analysisMode: 'ai' }));
+          go('model');
+        }}
+        onQuickRules={() => {
+          setState((st) => ({ ...st, retry: null, viewingAs: '', analysisMode: 'rules' }));
           go('model');
         }}
       />
@@ -161,15 +166,19 @@ export function App() {
   }
 
   if (screen === 'model') {
+    const shared = {
+      key: retry ? 'retry' : 'run',
+      messages,
+      participants,
+      only: retry?.only,
+      seqStart: retry?.seqStart,
+      onResult,
+      onBack: () => go(result ? 'brief' : 'review'),
+    };
+    if (state.analysisMode === 'ai') return <ModelStep {...shared} onQuickRules={() => setState((st) => ({ ...st, analysisMode: 'rules' }))} />;
     return (
-      <ModelStep
-        key={retry ? 'retry' : 'run'}
-        messages={messages}
-        participants={participants}
-        only={retry?.only}
-        seqStart={retry?.seqStart}
-        onResult={onResult}
-        onBack={() => go(result ? 'brief' : 'review')}
+      <Analyze
+        {...shared}
       />
     );
   }
@@ -177,6 +186,7 @@ export function App() {
   return (
     <Brief
       result={result!}
+      analysisMode={state.analysisMode}
       messages={messages}
       participants={participants}
       selfId={viewingAs}

@@ -1,6 +1,6 @@
 # prompt.md — Relay (ProtocolX "What Did I Miss?")
 
-Status: Updated 9 Oct 2026 after the platform scored the submission **10.00/100** (rank #49 of 52 in the latest view; earlier #44 of 46), with all five criteria rows showing `10`. No evaluator rationale was shown, so the cause is unknown. Uniform rows suggest an automated floor/fallback score, so this update makes the README judge-oriented (problem alignment, GenAI disclosure, setup, testing, security, accessibility) and records the organizer's submission rules (public repo, deployed link, description, GenAI disclosure, real working AI calls, no mock data). Earlier P11 remains **INSUFFICIENT VERIFICATION**: the complete production acceptance suite and worker-inclusive egress check were incomplete. See `docs/verification.md` and `docs/RELEASE.md`.
+Status: Updated 9 Oct 2026 after the participant asked to restore on-device AI for the live demo. The judging portal displayed **10.00/100** and later screenshots showed rank #49 of 52 (an earlier view showed #44 of 46); the portal gave no rationale. The result does not establish why the score was low. The current working tree restores Qwen3-4B through WebLLM/WebGPU as the primary analysis path and keeps the instant rule-based extractor as an explicit fallback. This restoration is local and has not yet been deployed or tested with live model inference in this turn.
 
 **Organizer guidance reported by the participant:** Design, UI, and code quality have the highest weightage. The project evidence relevant to those areas is surfaced below; no official numeric category weights or evaluator explanation were provided. This documentation update is after the displayed result and does not change that recorded attempt.
 
@@ -10,7 +10,7 @@ Status: Updated 9 Oct 2026 after the platform scored the submission **10.00/100*
 - **Code quality:** `src/ui`, `src/inference`/`src/worker`, and `src/domain` separate presentation, model execution, and deterministic processing. At the last recorded local run, 35 tests, lint, typecheck, build, and 11 configured contrast pairs passed. These results do not mean every production scenario passed.
 
 **GenAI services used and where (organizer requirement):**
-- *Runtime (in the product):* WebLLM 0.2.85 running Qwen3-4B-q4f16_1-MLC in the user's browser (Web Worker). It performs the extraction of items/changes from the pasted chat. No cloud AI, no second model, no canned output. Rules (parser, validation, ranking, deadlines) are deterministic code, not AI.
+- *Runtime (in the current working tree):* Qwen3-4B-q4f16_1-MLC through WebLLM in a Web Worker with WebGPU is the primary AI path. The model files are downloaded from Hugging Face; chat text is processed in the browser. A separate, labeled rules path (`src/domain/localExtractor.ts`) is available if the browser lacks WebGPU or the user chooses it. The restored path has not yet been deployed or re-probed in this turn.
 - *Development:* Zed agent (model self-reported as "Claude Sonnet 5.5") wrote the application code in this checkout; Codex (via BrowserOS Neo) ran the browser probes and reviews; earlier planning/design documents (SPEC.md, DESIGN.md) came from Figma Make/Opus as reported by the participant, and their prompts are only as recorded in `docs/PROMPT-LOG.md`.
 - *Test input:* every chat used so far is a synthetic fixture written for testing. No real or provided conversation has been used, and synthetic input is not presented as one.
 
@@ -161,3 +161,29 @@ The participant reported freeing storage and asked if the release was ready. Cur
 - **Purpose/files:** make the public project overview and required GenAI process record easier to assess against the participant-reported high-weight areas of design, UI, and code quality; `README.md` and `prompt.md`.
 - **Changes:** rewrote README around the product promise, design rationale, implementation boundaries, core journey, and measured evidence. Added an evaluator guide to this file, updated the final summary with the score shown in the supplied screenshots, and corrected the submission chronology. No application code or test results were changed.
 - **Outcome/verification:** edits completed locally after the screenshot showed 10.00/100 and rank #44/46. The supplied images show `10` beside each of five category labels but no written explanation. No cause is claimed, and these edits do not alter the already recorded result. `git diff --check` passed; README links and status statements were reviewed. Application tests were not rerun because no application code changed.
+
+## Richer synthetic conversation fixture — 9 Oct 2026
+
+- **Participant instruction (verbatim):** “DUDE GIVE ME THE PERFECT EXAMPLE .txt file”.
+- **Tool/model:** Codex; model identifier not recorded. No runtime model call was made for this new fixture.
+- **Purpose/files:** provide a more substantial chat for local app testing while keeping the previously production-tested three-message regression input intact; added `examples/SYNTHETIC-HANDOVER-DEMO.txt` and referenced it in `README.md`.
+- **Outcome:** the new 12-message synthetic conversation covers a confirmed time/place change, a proposal, a task reassignment with an explicit task deadline, and surrounding chat. For the intended walkthrough, select DMY, Asia/Kolkata, identity Kamal, and last-read message m4 (Arjun at 9:10 am). It is explicitly synthetic and is not represented as genuine user data.
+- **Verification:** all 12 lines match the app's WhatsApp-style timestamped message-header format. The new file has not been run through production inference; output quality is unverified. The old `SYNTHETIC-SIGNATURE-DEMO.txt` remains the exact input for the two previously observed production scenarios.
+
+## Second pass: add an instant rules fallback — 9 Oct 2026
+
+- **User messages (summaries):** the portal result was 10/100 and the participant asked for a fix aimed at full marks; asked how long a fallback would take; then said "go ahead, implement and push"; then "wait wait, no model and stuff this time — just in the browser something please".
+- **Tool/model:** Zed agent (Claude Sonnet 5.5, self-reported). BrowserOS Neo timed out, so the journey was verified with the repository's Playwright script in local headless Chrome.
+- **Reasoning (historical, not a proven score diagnosis):** the participant wanted an immediate path that works without a model download. The portal result did not establish that WebGPU was the cause of its score.
+- **Changes:** added `src/domain/localExtractor.ts` and `src/ui/Analyze.tsx` as an alternative to the AI path. The rule-based extraction uses the same validation, reconciliation and ranking pipeline. At that intermediate state, the AI path was temporarily removed; the participant later clarified that WebGPU AI must remain the product's primary differentiator.
+- **Verification (observed):** 41 tests, lint, typecheck and production build pass locally. In headless Chrome the signature fixture produced: Act now "Grab the projector" (reassigned from Arjun), changes 3pm→4pm and Room B214→LT-2 with two sources each, the confirmed setup and the proposal "Could we do 4" under context; 0 discarded items; coverage complete. A proposal-only variant (first two messages) produces no change, per a unit test.
+- **Not verified:** accuracy on real or differently worded chats (the rules are narrow and English-only), a full keyboard/screen-reader pass, a network capture, and the deployed site after this commit (checked after the push below).
+- **Honesty note:** this was an intermediate local revision. It is not the current intended product configuration; the next entry records restoring WebGPU AI alongside the fallback.
+
+## Restore on-device AI and prepare the live demo — 9 Oct 2026
+
+- **User instruction (verbatim):** “the webgpu should still be there- that's our unique point right- as in user can use AI without the data leaving device” and “yeah please go ahead and don't stop until fully done....”
+- **Tool/model:** Codex; model identifier not recorded.
+- **Purpose:** restore the agreed on-device AI path while retaining an honest immediate fallback, inspect the current product against the challenge, and prepare a reproducible demo.
+- **Changes:** restored the WebLLM engine/session, WebGPU capability check, worker and ModelStep; restored the structured extraction schema and CSP worker/model-host allowances; pinned `@mlc-ai/web-llm` 0.2.85. Made private AI the default after review and added an explicit instant-rules path for user choice or unavailable/failed WebGPU. Brief copy identifies which mode ran. Updated README and submission description; added `examples/SYNTHETIC-HANDOVER-DEMO.txt` and `docs/DEMO-RUN.md`.
+- **Verification:** `npm run lint`, `npm run typecheck`, `npm test` (42/42 across 3 files), and `npm run build` all passed locally. Build emitted existing dependency `"use client"` directive warnings and large-chunk warnings (the WebLLM worker/engine are about 6 MB each before compression). The synthetic rules-mode journey was exercised locally in the browser earlier in this turn; this turn did not run live inference. Production deployment and fresh production visit are recorded in `docs/RELEASE.md` only after they are observed.
