@@ -23,3 +23,7 @@ Deployed commit: 4c29eb0 (application files identical to this commit; later comm
 Observed by Zed after push: production serves `index-ZI9mWbGa.js` matching the local build of 4c29eb0; CSP header present; CSS and font assets return 200; `/catch-up` returns 200 (no blanket rewrite added); headless Chrome against production loaded S1 and advanced to S2 with Newsreader/Public Sans applied and no console or CSP-violation errors.
 NOT verified: the full journey on production (model load, inference, brief, inspector, reset), the re-probe of the current system prompt and injection fix, WebGPU-less behavior, Cloudflare deployment id, signed-out repo check, V2–V12, AC1–AC22. Codex is running post-deploy review in BrowserOS Neo.
 Previous known-working CP0 deployment: d4b28656 (586ff5e), still available in the Pages dashboard for rollback.
+
+## Base update — event-time fix (9 Oct 2026, still NOT submission-ready)
+Deployed app commit: e1e43bc (production serves `index-CuHoFhIC.js`, matching the local build). Production smoke (headless Chrome, S1→S2): fonts applied, no console/CSP errors. Change: a time without a deadline cue is shown as "Event time", the task shows "No date given". Tests 30/30, lint, typecheck, build passed before push.
+NOT yet verified: the fix on production with live inference (Codex to re-run the synthetic signature fixture in Neo and check the task deadline and the separate event time). Portal: nothing submitted.
