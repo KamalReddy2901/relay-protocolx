@@ -1,6 +1,7 @@
 import { LEDGER_BUDGET, planChunks, rangeLabel, splitPlan, type ChunkPlan } from './chunker';
 import { buildUserPrompt, estimateTokens, serializeMessage, systemPromptFor } from './extraction';
 import { reconcile } from './reconcile';
+import { omissionChecks, OMISSION_SYSTEM_PROMPT } from './omissions';
 import type { ChangePair, Coverage, Item, Message, Participant } from './types';
 import { parseModelOutput, validateExtraction } from './validate';
 
@@ -154,6 +155,33 @@ export async function runCatchUp(input: RunInput): Promise<RunOutput> {
           chunkIndex: ++seq,
           parts,
         });
+        const checks = omissionChecks([...known.values()], participants, v);
+        if (checks.length) {
+          let repair: GenerateOutput;
+          try {
+            repair = await generate(`${prompt}\n\nExtraction audit:\n${checks.join('\n')}`, OMISSION_SYSTEM_PROMPT);
+          } catch (e) {
+            const kind = classifyError(e);
+            if (kind === 'gpu-memory') throw new FatalInferenceError('The model ran out of GPU memory.', 'gpu-memory');
+            if (kind === 'device-lost') throw new FatalInferenceError('The GPU device was lost.', 'device-lost');
+            chunkLog.push({ range: rangeLabel(plan.units), status: 'failed', note: 'Focused extraction audit failed; retry this section.' });
+            return 'failed';
+          }
+          if (signal?.aborted) return 'failed';
+          const audited = parseModelOutput(repair.text);
+          if (!audited.ok || repair.finishReason === 'length') {
+            chunkLog.push({ range: rangeLabel(plan.units), status: 'invalid-output', note: 'Focused extraction audit returned invalid or truncated output.' });
+            return 'invalid-output';
+          }
+          const extra = validateExtraction(audited.value, { known, order, participants, chunkIndex: ++seq, parts });
+          v.items.push(...extra.items);
+          v.changes.push(...extra.changes);
+          v.discarded.push(...extra.discarded);
+          v.downgraded.push(...extra.downgraded);
+          v.instructionSources += extra.instructionSources;
+          thinkingStripped ||= audited.thinkingStripped;
+          chunkLog.push({ range: rangeLabel(plan.units), status: 'done', note: 'Ran one focused extraction audit for possible omissions.' });
+        }
         items.push(...v.items);
         changes.push(...v.changes);
         discarded.push(...v.discarded);

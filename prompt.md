@@ -114,3 +114,6 @@ The user asked for speed. Codex acted on the Figma Make / Claude Opus 5.5 static
 
 ### 3.11 Live signature rerun and consequence guard
 User asked “what now”. Codex ran the labeled synthetic signature conversation on production through BrowserOS Neo with Qwen3-4B. It completed both unread messages but returned no Act now item, missed the 3pm→4pm field, and described the owner change as a “setup” assignment. Codex added a local guard so an unmatched owner-change subject cannot generate a personal consequence, with a regression assertion. Local tests 30/30, lint and build pass. The guard does not recover the missing task/time and is not yet deployed; see `docs/BUILD-LOG.md`.
+
+### 3.12 Focused omission audit
+User asked to continue functional work while Figma creates the new visual direction (summary; exact message is in the chat). Codex added `omissions.ts`, conditional same-model recovery in `runner.ts`, and regression tests. The audit is triggered by recall cues and returns real model output with exact-source validation; no generated answer is hardcoded. Files: domain modules, tests, SPEC, and logs. Tests 33/33, lint/build passed locally; production quality not yet verified.
