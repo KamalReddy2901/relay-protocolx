@@ -1,7 +1,7 @@
 import { LEDGER_BUDGET, planChunks, rangeLabel, splitPlan, type ChunkPlan } from './chunker';
 import { buildUserPrompt, estimateTokens, serializeMessage, systemPromptFor } from './extraction';
 import { reconcile } from './reconcile';
-import { omissionChecks, OMISSION_SYSTEM_PROMPT } from './omissions';
+import { omissionChecks, explicitTimeRevisions, OMISSION_SYSTEM_PROMPT } from './omissions';
 import type { ChangePair, Coverage, Item, Message, Participant } from './types';
 import { parseModelOutput, validateExtraction } from './validate';
 
@@ -182,6 +182,7 @@ export async function runCatchUp(input: RunInput): Promise<RunOutput> {
           thinkingStripped ||= audited.thinkingStripped;
           chunkLog.push({ range: rangeLabel(plan.units), status: 'done', note: 'Ran one focused extraction audit for possible omissions.' });
         }
+        v.changes.push(...explicitTimeRevisions([...known.values()], v.changes));
         items.push(...v.items);
         changes.push(...v.changes);
         discarded.push(...v.discarded);

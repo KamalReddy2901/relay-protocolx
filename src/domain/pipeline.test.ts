@@ -101,6 +101,16 @@ describe('pipeline with a model double', () => {
     } });
     expect(calls).toBe(2);
     expect(out.coverage.complete).toBe(true);
+    const time = out.changes.find((change) => change.field === 'time');
+    expect(time && [time.before.value, time.after.value, time.before.evidence.messageId, time.after.evidence.messageId]).toEqual(['3pm', '4pm', 'm1', 'm3']);
+    expect(time?.before.evidence.quote).toBe('3pm');
+    expect(time?.after.evidence.quote).toBe('4pm');
+  });
+
+  it('never converts a tentative question into a deterministic time change', async () => {
+    const { p, msgs } = setup('10/10/26, 09:00 - Priya: Setup is confirmed for 3pm.\n10/10/26, 09:10 - Priya: Maybe we moved to 4pm?');
+    const out = await runCatchUp({ messages: msgs, participants: p.participants, generate: async () => ({ text: JSON.stringify({ items: [] }), finishReason: 'stop' }) });
+    expect(out.changes.filter((change) => change.field === 'time')).toHaveLength(0);
   });
 
   it('marks a failed omission audit partial rather than accepting the incomplete first answer', async () => {
