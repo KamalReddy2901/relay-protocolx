@@ -27,7 +27,7 @@ Keep domain computation separately testable, data access explicit, and UI state
 coherent across views. Implement validation, loading/error/empty/success states,
 recovery, promised persistence, and an explicit demo reset. Ensure keys stay on
 the server when a private API is used. Do not add unrelated dependencies/features. Reuse suitable elements from my own
-projects where they fit. Selected references: [PATH | PURPOSE | KNOWN CAVEAT].
+projects where they fit. Selected references: None selected..
 Inspect only relevant references, fix known defects, and adapt them instead of
 importing whole apps. Do not search unrelated projects for credentials.
 No unsolicited reuse section is needed in the public documentation; preserve
@@ -65,7 +65,7 @@ unavailable, report that limitation; source inspection is not a rendered UI chec
 
 Publish verified checkpoints with the supplied P08 Mode B instructions. Keep the
 last working production commit and draft package available while improving the
-app. Capture the announced cutoff [TIME/TIMEZONE, OR UNKNOWN]; check it before
+app. Capture the announced cutoff 9 October 2026 15:00 Asia/Kolkata (scheduled end; newer organizer announcement overrides); check it before
 optional expansion and preserve time for packaging, upload and receipt checking.
 Show the first wired main-screen screenshot with the V# check results as a brief
 progress update; continue building so I can steer without an approval pause.
@@ -83,10 +83,10 @@ Mode: [A — initial shell / B — publish current checkpoint].
 In Mode A, read accepted SPEC.md and DESIGN.md, create only the minimal compatible
 scaffold, then prove the deployment path before feature implementation. In Mode B,
 publish the current checkpoint to the existing repository and Pages project;
-do not create duplicates. Project directory: [PROJECT DIRECTORY].
-Mode A only: create a new public GitHub repository named [REPO NAME] and connect
-it to Cloudflare Pages using Git integration. Mode B: use [EXISTING REPO URL]
-and [EXISTING PAGES PROJECT]. Follow current repository-creation rules.
+do not create duplicates. Project directory: /Users/kamal/Desktop/My projects/relay-protocolx.
+Mode A only: create a new public GitHub repository named relay-protocolx and connect
+it to Cloudflare Pages using Git integration. Mode B: use https://github.com/KamalReddy2901/relay-protocolx
+and relay-protocolx. Follow current repository-creation rules.
 
 Inspect repository state and account access first. Preserve existing work.
 Confirm the framework's build/runtime requirements fit this deployment target.
