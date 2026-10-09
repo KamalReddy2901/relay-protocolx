@@ -237,21 +237,24 @@ describe('chunker and ledger across chunks', () => {
     const { p, msgs } = setup(text);
     const lastId = msgs[msgs.length - 1].id;
     const sawLedger: boolean[] = [];
+    const sawLedgerInstructions: boolean[] = [];
     const out = await runCatchUp({
       messages: msgs, participants: p.participants,
-      generate: async (user) => {
+      generate: async (user, system) => {
         if (user.includes(`"id":"${lastId}"`) && !user.includes('"id":"m1","time"')) return { text: '{"items":[]}', finishReason: 'stop' };
         if (user.includes('"id":"m1"') && !user.includes(`"id":"${lastId}"`)) {
           return { finishReason: 'stop', text: JSON.stringify({ items: [{ kind: 'decision', title: 'Rehearsal in Room B214', owner_name: null, deadline_text: null, status: 'confirmed', subject: 'rehearsal venue', evidence: [{ id: 'm1', quote: 'Venue is Room B214', role: 'states' }] }] }) };
         }
         if (user.includes(`"id":"${lastId}"`)) {
           sawLedger.push(user.includes('"ledger":true'));
+          sawLedgerInstructions.push(system.includes('Lines with "ledger":true'));
           return { finishReason: 'stop', text: JSON.stringify({ items: [{ kind: 'change', title: 'Rehearsal venue changed', owner_name: null, deadline_text: null, status: 'confirmed', subject: 'rehearsal venue', change_fields: [{ field: 'place', before_value: 'Room B214', after_value: 'LT-2', before_id: 'm1', after_id: lastId }], evidence: [{ id: 'm1', quote: 'Venue is Room B214', role: 'before' }, { id: lastId, quote: 'moved to LT-2', role: 'after' }] }] }) };
         }
         return { text: '{"items":[]}', finishReason: 'stop' };
       },
     });
     expect(sawLedger).toContain(true);
+    expect(sawLedgerInstructions).toContain(true);
     expect(out.changes).toHaveLength(1);
     expect(out.changes[0].before.evidence.messageId).toBe('m1');
     expect(out.coverage.complete).toBe(true);
