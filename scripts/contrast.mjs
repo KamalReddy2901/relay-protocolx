@@ -8,25 +8,18 @@ const ratio = (a, b) => {
   const y = lum(b);
   return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
 };
-const PAPER = '#F6F3EC';
-const SHEET = '#FFFDF8';
 const pairs = [
-  ['ink on paper', '#1B1A17', PAPER, 7],
-  ['ink on sheet', '#1B1A17', SHEET, 7],
-  ['ink-2 on paper', '#55514A', PAPER, 4.5],
-  ['ink-2 on sheet', '#55514A', SHEET, 4.5],
-  ['rule-strong on sheet (non-text UI)', '#8F887C', SHEET, 3],
-  ['revise on sheet', '#9A2F1F', SHEET, 4.5],
-  ['revise on revise-wash', '#9A2F1F', '#F7E4DF', 4.5],
-  ['current on sheet', '#1E5B45', SHEET, 4.5],
-  ['current on current-wash', '#1E5B45', '#E1EEE7', 4.5],
-  ['ink on current-wash', '#1B1A17', '#E1EEE7', 4.5],
-  ['tentative on sheet', '#7A5410', SHEET, 4.5],
-  ['tentative on tentative-wash', '#7A5410', '#F6EBD3', 4.5],
-  ['ink-2 on tentative-wash', '#55514A', '#F6EBD3', 4.5],
-  ['focus on paper (non-text UI)', '#1F4FD1', PAPER, 3],
-  ['focus on sheet (non-text UI)', '#1F4FD1', SHEET, 3],
-  ['sheet on ink button fill', '#FFFDF8', '#1B1A17', 7],
+['dark ink on surface','#EEF1F6','#161E2D',7],
+['dark secondary on surface','#A6B2C7','#161E2D',4.5],
+['dark proof on surface','#8FB4FF','#161E2D',4.5],
+['highlight text','#14180A','#F2FF5C',7],
+['dark change','#FF7A59','#161E2D',4.5],
+['dark confirmed','#5EE6B8','#161E2D',4.5],
+['light secondary','#545D6E','#ECE9DF',4.5],
+['light proof','#2F5BD3','#FFFFFF',4.5],
+['light change','#BA351B','#FFFFFF',4.5],
+['light confirmed','#08694D','#FFFFFF',4.5],
+['light highlight text','#14180A','#EEFF3A',7],
 ];
 let failed = 0;
 for (const [name, fg, bg, min] of pairs) {
