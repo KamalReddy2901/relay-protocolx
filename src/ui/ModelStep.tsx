@@ -148,6 +148,15 @@ export function ModelStep({ messages, participants, only, seqStart, onResult, on
     onBack();
   }
 
+  function switchToRules() {
+    // Ignore the in-flight AI result before switching views. The explicit
+    // rules mode then produces a separate, accurately labelled brief.
+    leftRef.current = true;
+    abort.current?.abort();
+    interrupt(engineRef.current);
+    onQuickRules();
+  }
+
   async function remove() {
     await removeModelFiles();
     setCached(false);
@@ -238,9 +247,12 @@ export function ModelStep({ messages, participants, only, seqStart, onResult, on
               </ul>
             )}
             <p className="mono muted">Elapsed {elapsed}s</p>
-            <Btn onClick={cancel} reason={stopping ? 'Stopping after the current section…' : null}>
-              Cancel
-            </Btn>
+            <div className="row">
+              <Btn onClick={cancel} reason={stopping ? 'Stopping after the current section…' : null}>
+                Cancel AI run
+              </Btn>
+              <Btn primary onClick={switchToRules}>Switch to instant rules</Btn>
+            </div>
             <p className="small muted">Cancelling keeps the sections already read and marks the result Partial.</p>
           </div>
         )}

@@ -5,7 +5,12 @@ const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const times = (s: string) => s.match(/\b(?:[01]?\d|2[0-3])(?::[0-5]\d)?\s*(?:am|pm)\b/gi)?.map((t) => t.toLowerCase().replace(/\s/g, '')) ?? [];
 
 /** Recall cues only: these trigger another real model call, never create a task or change. */
-export function omissionChecks(messages: Message[], participants: Participant[], report: ValidationReport): string[] {
+export function omissionChecks(
+  messages: Message[],
+  participants: Participant[],
+  report: ValidationReport,
+  safelyRecoveredTimePairs: ReadonlySet<string> = new Set(),
+): string[] {
   const checks: string[] = [];
   for (const message of messages) {
     if (!message.isUnread || isInstructionLike(message.text)) continue;
@@ -35,6 +40,10 @@ export function omissionChecks(messages: Message[], participants: Participant[],
       if (beforeTimes.length !== 1 || beforeTimes[0] === afterTimes[0]) continue;
       if (!/\b(?:confirm(?:ed|ation)?|scheduled|set for|booked|planned)\b/i.test(before.text)) continue;
       const key = `${before.id}|${after.id}`;
+      // A narrowly validated same-author time revision is already recovered
+      // from exact source spans below the model boundary; don't spend another
+      // generation asking the model to rediscover that same pair.
+      if (safelyRecoveredTimePairs.has(key)) break;
       const alreadyFound = report.changes.some((change) => change.field === 'time' && change.before.evidence.messageId === before.id && change.after.evidence.messageId === after.id);
       if (alreadyFound) break;
       if (seen.has(key)) break;

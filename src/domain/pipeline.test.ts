@@ -91,13 +91,21 @@ describe('pipeline with a model double', () => {
   });
 
   it('audits a confirmed time revision even when first extraction returns no changes', async () => {
-    const { p, msgs } = setup(FIXTURE, 'm1');
+    const { p, msgs } = setup(FIXTURE.replace('09:20 - Priya:', '09:20 - Sam:'), 'm1');
     let calls = 0;
     const out = await runCatchUp({ messages: msgs, participants: p.participants, generate: async (user) => {
       calls++;
       if (calls === 1) return { text: JSON.stringify({ items: [] }), finishReason: 'stop' };
       expect(user).toContain('explicit confirmed event-time revision');
-      return { text: JSON.stringify({ items: [] }), finishReason: 'stop' };
+      return { text: JSON.stringify({ items: [{
+        kind: 'change', title: 'Setup time changed', owner_name: null, deadline_text: null,
+        status: 'confirmed', subject: 'setup time',
+        change_fields: [{ field: 'time', before_value: '3pm', after_value: '4pm', before_id: 'm1', after_id: 'm3' }],
+        evidence: [
+          { id: 'm1', quote: '3pm', role: 'before' },
+          { id: 'm3', quote: '4pm', role: 'after' },
+        ],
+      }] }), finishReason: 'stop' };
     } });
     expect(calls).toBe(2);
     expect(out.coverage.complete).toBe(true);
@@ -105,6 +113,18 @@ describe('pipeline with a model double', () => {
     expect(time && [time.before.value, time.after.value, time.before.evidence.messageId, time.after.evidence.messageId]).toEqual(['3pm', '4pm', 'm1', 'm3']);
     expect(time?.before.evidence.quote).toBe('3pm');
     expect(time?.after.evidence.quote).toBe('4pm');
+  });
+
+  it('uses exact source spans instead of a second model call for a clear same-author time revision', async () => {
+    const { p, msgs } = setup(FIXTURE, 'm1');
+    let calls = 0;
+    const out = await runCatchUp({ messages: msgs, participants: p.participants, generate: async () => {
+      calls++;
+      return { text: JSON.stringify({ items: [] }), finishReason: 'stop' };
+    } });
+    expect(calls).toBe(1);
+    const time = out.changes.find((change) => change.field === 'time');
+    expect(time && [time.before.value, time.after.value, time.before.evidence.messageId, time.after.evidence.messageId]).toEqual(['3pm', '4pm', 'm1', 'm3']);
   });
 
   it('never converts a tentative question into a deterministic time change', async () => {

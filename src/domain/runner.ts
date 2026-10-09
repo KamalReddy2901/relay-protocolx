@@ -155,7 +155,9 @@ export async function runCatchUp(input: RunInput): Promise<RunOutput> {
           chunkIndex: ++seq,
           parts,
         });
-        const checks = omissionChecks([...known.values()], participants, v);
+        const deterministicTimes = explicitTimeRevisions([...known.values()], v.changes);
+        const safelyRecoveredTimePairs = new Set(deterministicTimes.map((change) => `${change.before.evidence.messageId}|${change.after.evidence.messageId}`));
+        const checks = omissionChecks([...known.values()], participants, v, safelyRecoveredTimePairs);
         if (checks.length) {
           let repair: GenerateOutput;
           try {
@@ -182,7 +184,7 @@ export async function runCatchUp(input: RunInput): Promise<RunOutput> {
           thinkingStripped ||= audited.thinkingStripped;
           chunkLog.push({ range: rangeLabel(plan.units), status: 'done', note: 'Ran one focused extraction audit for possible omissions.' });
         }
-        v.changes.push(...explicitTimeRevisions([...known.values()], v.changes));
+        v.changes.push(...deterministicTimes);
         items.push(...v.items);
         changes.push(...v.changes);
         discarded.push(...v.discarded);

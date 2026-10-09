@@ -14,7 +14,7 @@ Open the deployed app and check whether Qwen3-4B is already cached in this brows
 2. On Review, select **Day/Month/Year** if asked and use `Asia/Kolkata`.
 3. Expand **My name or someone else's isn't in the list**, enter `Kamal` as your name, and add `Arjun` under other people mentioned. (Arjun is named in the chat but never speaks in it.)
 4. Set **I last read up to…** to **m1**, the original confirmed 3pm / Room B214 plan.
-5. Choose **Catch me up with private AI**. If WebGPU is unavailable or setup fails, switch to the visibly labeled instant rules mode.
+5. Choose **Catch me up with private AI**. If WebGPU is unavailable or setup fails, switch to the visibly labeled instant rules mode. If inference runs longer than the demo allows, choose **Switch to instant rules** on the running screen; it interrupts AI and clearly identifies the separate rules-based result.
 6. Show the brief's **Act now** section: the printed check-in sheets and the projector, now reassigned to Kamal. Point out the stated deadlines.
 7. Show **What changed**: `3pm · Room B214 → 4pm · LT-2`. Open both source references and show the proposal question is not treated as the confirmation.
 8. Show the proposal for a livestream under **For context**, and the cancelled evening rehearsal. Explain these are a suggestion and a separate cancellation; the robotics showcase itself remains on.

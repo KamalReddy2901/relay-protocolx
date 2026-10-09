@@ -136,3 +136,9 @@ Local verification: `npm run lint`, `npm run typecheck`, `npm test` (42/42), `np
 Final code review found that `runner.ts` had stopped appending the ledger-specific system instruction for later chunks. Restored `systemPromptFor(ledger.length > 0)` and extended the cross-chunk test to assert the instruction is present when ledger evidence is supplied. Re-ran lint, typecheck, all 42 tests, production build, and `git diff --check`; all passed. This fix does not count as a live model run.
 
 Cloudflare Pages production deployment for `fd3bfab` is `2250e2ea-825c-4e9a-99b0-2cf64c33dc5b`. Fresh HTTPS checks returned HTTP 200 for the production root and the referenced main bundle, CSS, WebLLM engine and engine worker; the engine references the worker. The main bundle is `index-BTPHX_oL.js`. BrowserOS Neo was unavailable, so no rendered UI, interactive journey or live inference was checked on this deployment.
+
+## 9 Oct 2026 — reduce catch-up waiting
+
+The participant supplied a production screenshot showing Qwen3-4B reading 10 messages with 31 seconds elapsed. This is the running/inference phase, not the first model download. Added a guarded optimization: when the exact source-span rule independently recovers the same-author confirmed time change, omit the duplicate model audit for that pair; retain the model audit for cross-author revisions and missing task assignments. Added a **Switch to instant rules** control during inference so the user can stop waiting and receive a clearly labeled non-AI result. The switch aborts and ignores the pending AI result before running rules.
+
+Local verification: lint, typecheck, 43/43 tests, production build, and diff check passed. Tests prove the duplicate same-author audit is skipped and cross-author audit remains. The screenshot's 31-second duration has not been remeasured; this does not guarantee lower latency for first-pass model generation. Deploy next and verify assets; no live WebGPU run is claimed.
