@@ -122,3 +122,10 @@ Purpose: continue from the deployed base, verify the signature interaction, and 
 
 ### Production verification update — focused UI refinement
 BrowserOS Neo opened the public production page after `21929e5` and confirmed the changed JS/CSS assets plus the compiled redline and scroll rules. It did not run a fresh model inference or inspect a populated brief screenshot. See `docs/BUILD-LOG.md` and `docs/RELEASE.md`.
+
+## 9 Oct 2026 — live synthetic signature rerun and focused correction
+- **User prompt (verbatim):** “what now”
+- **Tool/model:** BrowserOS Neo exercised the production app; runtime model was Qwen3-4B (WebLLM). Codex then edited the domain ranking code.
+- **Purpose/files:** rerun the required signature interaction after the visual update; `src/domain/rank.ts`, `src/domain/pipeline.test.ts`, `docs/BUILD-LOG.md`, `docs/RELEASE.md`, `prompt.md`.
+- **Observed output:** complete processing of 2 unread messages, but Act now 0, the time change was omitted, and the owner consequence incorrectly referred to “setup.” Exact run details are in `docs/BUILD-LOG.md`.
+- **Correction/outcome:** suppress personal owner-change consequences unless a validated action with the same subject exists; add a regression assertion. Local tests 30/30, lint and build passed. This is a narrow guard, not a fix for the omitted action/time. Deployment and re-test pending.

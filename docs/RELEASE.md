@@ -36,3 +36,6 @@ Source commit `c20b386` was pushed after that metadata release. It strengthens t
 ## Focused UI refinement — 9 Oct 2026 (base remains NOT submission-ready)
 Source commit `21929e5` deployed to `https://relay-protocolx.pages.dev`. BrowserOS Neo loaded the production page and confirmed the new assets (`index-BejlI4yL.js`, `index-Ct4gAIrW.css`). The fetched production stylesheet contains the combined redline layout, text-only before/after styling, and bounded inspector scrolling. Local tests 30/30, lint, and build passed before push.
 This check confirms the shell and compiled styles only. No fresh brief screenshot, live inference run, or end-to-end journey was performed for this refinement. The previously observed inconsistent model outputs remain the primary release blocker; nothing was submitted to the portal.
+
+## Live signature diagnostic — 9 Oct 2026
+BrowserOS Neo ran the three-message synthetic signature case on the production UI after `21929e5`. Qwen3-4B completed both unread messages, but produced Act now 0, omitted the 3pm→4pm time change, and mislabeled the owner change as a “setup” assignment. The production result therefore fails the intended signature acceptance check. A local guard now suppresses that personal consequence if no matching validated action exists; the guard is not yet deployed. No judging-portal submission has been made.

@@ -94,3 +94,8 @@ Updated the document title, description, browser theme color, and added `public/
 
 ### Production check for the focused UI refinement
 BrowserOS Neo loaded the live Relay page at `https://relay-protocolx.pages.dev` after commit `21929e5`. The page title was correct and the deployed JS/CSS URLs changed to `index-BejlI4yL.js` and `index-Ct4gAIrW.css`. The fetched CSS contained the combined `.redline` rule, badge-free `.before`/`.after` rules, and bounded `overscroll-behavior` for the inspector. This verifies deployment and compiled styles. It does not verify the rendered brief visually or run the model again.
+
+## 9 Oct 2026 — live signature rerun and consequence guard
+- BrowserOS Neo ran the production synthetic signature case with Kamal as identity and m1 as last-read boundary. It processed m2–m3 completely. Observed result: Act now 0; What changed contained Place `Room B214 → LT-2` and Owner `Arjun → Kamal`; the 3pm→4pm time change was missing; the personal consequence incorrectly called the owner change a “setup” assignment. For context 0. This was a real Qwen3-4B browser inference on synthetic chat, not canned output.
+- Focused correction: `rank.ts` now emits a personal owner-change consequence only when a validated action for the same subject exists. Added a regression assertion that an owner change without a matching action cannot produce a personal consequence. This prevents the misleading “setup assignment” claim; it does not recover the missing task or time field.
+- Local checks after the guard: tests 30/30, lint, and production build passed. The guard has not yet been deployed or live-inference tested. No claim of submission readiness.

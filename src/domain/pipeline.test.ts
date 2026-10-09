@@ -81,7 +81,11 @@ describe('pipeline with a model double', () => {
     expect(kamal.actNow[0].reasons.some((r) => r.startsWith('Reassigned to you'))).toBe(true);
     expect(kamal.changed[0].affectsSelf).toBe(true);
     expect(kamal.changed[0].pairs.length).toBe(3);
-    expect(kamal.changed[0].consequences).toContain('For you: the “projector” assignment is now yours (was Arjun).');
+    expect(kamal.changed[0].consequences).toContain('For you: “Bring the projector to LT-2” is now yours (was Arjun).');
+    const missingTask = rank({ ...base, items: out.items.filter((item) => item.kind !== 'action'), selfId: 'p9' });
+    const unsupportedOwnerChange = missingTask.changed.find((group) => group.pairs.some((pair) => pair.field === 'owner'))!;
+    expect(unsupportedOwnerChange.consequences).toEqual([]);
+    expect(unsupportedOwnerChange.affectsSelf).toBe(false);
     const callsAfterKamal = calls;
     const arjun = rank({ ...base, selfId: 'p8' });
     expect(arjun.actNow).toHaveLength(0);

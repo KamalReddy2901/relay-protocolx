@@ -211,13 +211,14 @@ export function rank(input: RankInput): Ranking {
     const consequences: string[] = [];
     for (const p of pairs) {
       const subjectItem = items.find((i) => i.kind === 'action' && sameSubject(i.subjectKey, p.subjectKey));
-      const title = subjectItem?.title ?? p.subjectKey;
       if (p.field === 'owner') {
         const after = resolveOwner(p.after.value, participants).id;
         const before = resolveOwner(p.before.value, participants).id;
-        const subject = p.subjectKey || title;
-        if (after === selfId) consequences.push(`For you: the “${subject}” assignment is now yours (was ${p.before.value}).`);
-        else if (before === selfId) consequences.push(`For you: the “${subject}” assignment moved to ${p.after.value}.`);
+        // Only describe a personal consequence when an action for this same subject
+        // survived extraction and validation. Otherwise the subject may be an event
+        // label (e.g. "setup"), and calling it an assignment would mislead the user.
+        if (subjectItem && after === selfId) consequences.push(`For you: “${subjectItem.title}” is now yours (was ${p.before.value}).`);
+        else if (subjectItem && before === selfId) consequences.push(`For you: “${subjectItem.title}” is now assigned to ${p.after.value}.`);
       }
     }
     if (consequences.length === 0) {

@@ -111,3 +111,6 @@ User relayed: required portal items are the public repo, the deployed URL (deck 
 
 ### 3.10 Focused UI refinements from Figma Make review (summary of actual prompt)
 The user asked for speed. Codex acted on the Figma Make / Claude Opus 5.5 static source review (not a rendered screenshot review). Make recommended grouping related changes into one redline, removing badge-like before/after fills, and bounding the source panel's scroll height. Codex changed `src/ui/Brief.tsx` and `src/index.css`; local verification: tests 30/30, lint and build passed. Production verification is pending. The exact user request and review outcome are in `docs/PROMPT-LOG.md` and `docs/BUILD-LOG.md`.
+
+### 3.11 Live signature rerun and consequence guard
+User asked “what now”. Codex ran the labeled synthetic signature conversation on production through BrowserOS Neo with Qwen3-4B. It completed both unread messages but returned no Act now item, missed the 3pm→4pm field, and described the owner change as a “setup” assignment. Codex added a local guard so an unmatched owner-change subject cannot generate a personal consequence, with a regression assertion. Local tests 30/30, lint and build pass. The guard does not recover the missing task/time and is not yet deployed; see `docs/BUILD-LOG.md`.
