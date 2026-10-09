@@ -1,50 +1,67 @@
 # prompt.md — Relay (ProtocolX "What Did I Miss?")
 
-Status: DRAFT, 9 Oct 2026. The app is NOT ready for judging. The real-model check has not been run. Written after the CP1 probe code already existed (commit e29851f); it was not prepared before or alongside that code.
+Status: DRAFT, 9 Oct 2026. The app is NOT ready for judging. The real-model check has not been run.
 
-The organizer's prompt.md format/size announcement was not supplied to this agent as text, so this file follows no confirmed organizer format. Adjust once the announcement is provided.
+**Chronology (honest record).** The organizer's master prompt says prompt.md should be created before application code. That did not happen here: the CP0 shell was built earlier (`16f0210`), and the CP1 probe code (`e29851f`) was written and deployed BEFORE this file existed. The first prompt.md (`fc0bd48`) was created after it, on the user's instruction, and this version restructures it to the organizer's sections. Application code has been paused since then. The master prompt's text says "six required sections" but lists seven; all seven are below.
 
-## 1. Product summary
-Relay: paste a group chat, choose who you are and where you stopped reading, and get a personal catch-up (Act now / What changed / For context) with source messages. Planned runtime AI: WebLLM running Qwen3-4B-q4f16_1-MLC in the browser. Current state: shell page plus a hidden `#probe` debug view; the brief UI does not exist.
+Each interaction below records: prompt, tool/model, purpose, files affected, outcome and verification status. "Summary" marks paraphrases; "verbatim" marks exact text. Tool/model for all Zed entries: Zed agent, model name as reported by its own system prompt ("Claude Sonnet 5.5"), not independently verified. BrowserOS Neo is used as a browser tool, not as a code generator. No secrets are included.
 
-## 2. GenAI use, by phase
-| Phase | Tool/model | Status |
-|---|---|---|
-| Planning/spec/design (SPEC.md, DESIGN.md, research review) | Earlier tools (Make, Craft and others, per `docs/PROMPT-LOG.md`) | Prompts there are only those recorded in that file. Earlier conversations were not visible to this agent; gaps exist. |
-| Implementation | Zed agent, model reported as "Claude Sonnet 5.5" by its system prompt (not independently verified) | Wrote the code listed in section 4. |
-| Runtime inference | WebLLM 0.2.85 + Qwen3-4B-q4f16_1-MLC (Apache-2.0 per SPEC; notice not yet checked) | Code exists. **Never executed.** No output observed. |
+## 1. Project Overview
+- **Problem:** after being away from a busy group chat, a student cannot tell what changed, what they personally must do, and which messages prove it.
+- **Solution:** Relay: paste a supported chat export, choose who you are and the last message you read, and receive a brief with Act now / What changed / For context. The user chooses the text and the last-read boundary; Relay does not detect unread state. Each item links to exact source quotes. Differentiation (product hypothesis, not a "first" claim): an explicit revision is shown as a before/after redline with both sources and a personal consequence.
+- **Features implemented so far:** deterministic chat parser, extraction schema/prompt, evidence validator, WebLLM worker, hidden `#probe` debug view. **Not implemented:** import/review/model/brief/inspector screens, chunking, reconciliation, ranking, acknowledgments, reset, failure states.
+- Specs: `SPEC.md`, `DESIGN.md`.
 
-Development prompts (section 3) are separate from the runtime prompt (section 5).
+## 2. Tech Stack & Architecture
+React 19 + TypeScript + Vite, `@mlc-ai/web-llm` 0.2.85 (Qwen3-4B-q4f16_1-MLC) in a Web Worker, Vitest, Cloudflare Pages (static, no server, no secrets), GitHub repo `KamalReddy2901/relay-protocolx`. Architecture per SPEC §8: UI → reducer state → pure domain modules (parser, validate, later chunker/rank) → inference adapter → worker. Chat text is meant to stay in the browser; this has NOT been verified in a network capture.
 
-## 3. Development prompts (Zed session, 9 Oct 2026)
-### Prompt 1 (verbatim, attachment links kept)
+## 3. AI Code Generation
+### 3.1 Continue implementation, start with CP1 (verbatim)
 > Continue ProtocolX implementation in this existing workspace. First read docs/ZED-HANDOFF.md and follow it, then read the complete P07 and P08 Mode B + P12 instructions in docs/EXECUTION-PROMPTS.md. Read SPEC.md, DESIGN.md, docs/EVENT-RULES.md, docs/RELEASE.md and docs/RESEARCH-REVIEW.md. Also review all three attached research briefs.
 >
 > Use the existing GitHub repo and Cloudflare Pages project. Check the current Git and deployment state; preserve existing work. Start with CP1: run and evaluate real WebLLM inference on the deployed site with unfamiliar chat input. Continue through the product implementation and deployed verification if the probe passes. Preserve the approved visual direction and the change-aware personal catch-up interaction. Do not replace real inference with canned results, add an unverified second model engine, or submit to the judging portal.
 >
 > Show me the first wired screen with its visual-check findings, then keep building. Record actual prompts and checks accurately. Report concrete blockers and the verified production URL/commit. Do not claim the app is ready for judging until the deployed end-to-end journey works.
 
-Observed output: read the docs (EVENT-RULES read was truncated by tool output; the three research briefs were seen only as outlines), added the CP1 probe code (commit e29851f), pushed, confirmed by curl that production serves it. Then the browser tool failed (section 6).
+- **Tool/model:** Zed agent. **Purpose:** CP1 mechanism probe.
+- **Files affected (commit `e29851f`):** `src/domain/{types,time,parser,extraction,validate}.ts`, `src/domain/domain.test.ts`, `src/worker/llm.worker.ts`, `src/inference/engine.ts`, `src/probe/Probe.tsx`, `src/main.tsx`, `public/_headers`, `package.json`, `package-lock.json`.
+- **Outcome:** code written, pushed, production serves it (checked with `curl`: asset name and CSP header). **Verification:** unit tests 14/14, lint, typecheck and build pass locally. Model behavior NOT verified. The three research briefs were seen only as outlines and the EVENT-RULES read was truncated; no claims from them are repeated.
 
-### Prompt 2 (verbatim, summary of attachments omitted)
+## 4. Debugging
+| Problem (observed) | Prompt/action | Solution | Status |
+|---|---|---|---|
+| CP0: TypeScript 7 conflicted with typescript-eslint peer range (from `docs/BUILD-LOG.md`, earlier session) | Not recorded in this session | Pinned TypeScript 6.0.3 | Resolved per build log |
+| `npm audit` reported critical advisories in vitest 3.2.4 and 3.2.7 (tinypool, @vitest/mocker) | Part of prompt 3.1 | Upgraded to vitest 4.1.11; audit reports 0 vulnerabilities | Verified locally |
+| A unit test failed: fixture dates were ambiguous, so the parser (correctly) gave no timestamp | Part of prompt 3.1 | Test supplies `dateOrder: 'DMY'` | Tests pass |
+| BrowserOS Neo returned "Context server request timeout" on every call (tabs, `run`, `wait`, human-help) | Part of prompt 3.1 | None yet; user to refocus BrowserOS Neo | **Unresolved at time of writing**; probe NOT run |
+
+## 5. AI Features & Design
+### 5.1 Runtime AI (coded, never executed)
+System prompt: `SYSTEM_PROMPT` in `src/domain/extraction.ts` (data-not-instructions rule, JSON schema, confirmed vs proposed definitions, change only on explicit revision, one worked example about a bake sale, which is a synthetic prompt example). Chat lines are serialized as JSON objects. Settings: JSON-schema constrained output, `enable_thinking: false`, temperature 0.2, top_p 0.9, seed 7. These values were chosen without any model output; they are untuned.
+**Status:** no output ever observed; effectiveness unverified.
+### 5.2 Design and architecture decisions
+Taken from the accepted `SPEC.md`/`DESIGN.md` (written earlier with other tools; their prompts are only as recorded in `docs/PROMPT-LOG.md`, with gaps). Decisions in this session: no cloud/second-engine fallback; no canned output; CSP hosts for model files are an unverified guess pending the probe.
+
+## 6. Testing & Improvements
+Done: parser and validator unit tests on synthetic fixtures (formats, multiline, ambiguity, read boundary, invented IDs, altered quotes, ordering, owner ambiguity); lint, typecheck, build.
+NOT done (unverified): model download, cold/warm load, non-thinking behavior, JSON validity, confirmed-vs-proposed accuracy, quote validity, CORS/redirect hosts, cache, memory, offline recovery, content-leakage check, judge-device support, all AC1–AC22 end-to-end checks, accessibility and visual checks. No real conversation supplied.
+
+## 7. Final Summary (interim)
+- **AI tools used:** Zed agent for implementation; earlier planning/design tools per `docs/PROMPT-LOG.md`; WebLLM + Qwen3-4B planned for runtime, not yet run.
+- **Major contributions so far:** parser, schema/prompt, validator, worker, probe, tests, deployment of the probe build.
+- **Completed features:** none of the user-facing journey. Not ready for judging.
+- **CP3 readiness gate:** may be claimed only when the deployed end-to-end journey passes all mandatory acceptance checks, including multi-chunk processing and reconciliation (AC15) and failure recovery (AC16–AC17, partial coverage), with real inference, as listed in SPEC §11 and §13.
+
+## Interaction log (append-only)
+### 3.2 Plan review request (verbatim)
 > Thanks. Keep application-code changes paused. Before any more coding, follow the new organizer announcement: create an accurate prompt.md at the repository root and present the current development plan for my review, then wait for my confirmation.
 >
 > Record that the CP1 probe code already exists and prompt.md is being created after it; do not imply otherwise. Use actual prompt text only where available, label summaries as summaries, and record the BrowserOS timeout and unverified model checks exactly as reported. Don't claim the app is ready or the model works.
 >
 > After I review and confirm, we'll refocus BrowserOS Neo and continue with the probe.
 
-Human decisions recorded: pause application code; confirm plan before continuing. (Decisions only as stated in the prompts.)
+Outcome: first `prompt.md` (`fc0bd48`) and an 8-step plan. Purpose: documentation. Files: `prompt.md`.
 
-## 4. Code that exists (commit e29851f, before this file)
-Parser, extraction schema/prompt, validator, WebLLM worker, `#probe` debug view, CSP changes, 14 unit tests on synthetic fixtures. Checks run locally: tests 14/14, lint, typecheck, build passed. Deployed assets confirmed via curl, not in a browser. See `docs/BUILD-LOG.md`.
-
-## 5. Runtime prompt (as coded, not yet run)
-System prompt text lives in `src/domain/extraction.ts` (`SYSTEM_PROMPT`); user prompt is built from chat lines serialized as JSON objects; output is constrained by a JSON schema; `enable_thinking: false`, temperature 0.2, top_p 0.9, seed 7. Tuning has not happened because no output has been seen. Its worked example (bake sale) is a synthetic prompt example, not a user conversation. Test fixtures are synthetic.
-
-## 6. Verification record (exactly as observed)
-- BrowserOS Neo returned "Context server request timeout" on every call (tab list, `run`, `wait`, human-help request). The probe was therefore NOT run.
-- NOT verified: model download, cold/warm load time, whether non-thinking mode works, JSON validity, confirmed-vs-proposed accuracy, quote validity, CORS/redirect hosts in the CSP, cache behavior, memory, offline recovery, network content leakage, judge-device support.
-- No real conversation has been supplied. No end-to-end journey exists.
-
-## 7. Gaps and redactions
-Earlier Make/Astra/Craft prompts are not reproduced here beyond `docs/PROMPT-LOG.md`. No secrets were involved; nothing redacted. Not submitted to any judging portal.
+### 3.3 Approval and organizer master prompt (summary; the full organizer text was pasted by the user and is not reproduced here)
+Summary: plan approved with two corrections; the organizer master prompt requires `prompt.md` with the sections above and, per interaction: actual prompt, tool/model, purpose, files, outcome/verification; no invented prompts or results; no secrets; wait for confirmation before application code. User asked to replace the "no confirmed format" line, keep the chronology honest, gate CP3 readiness on the full journey and acceptance checks, and then continue with the CP1 probe after refocusing BrowserOS Neo.
+Outcome: this restructure. Files: `prompt.md`. Verification: none beyond reading the file.
