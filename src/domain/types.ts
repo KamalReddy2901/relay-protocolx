@@ -100,6 +100,8 @@ export interface Item {
   subjectKey: string;
   evidence: Evidence[];
   chunkIndex: number;
+  /** Set when a validated owner change replaced this assignment. */
+  supersededBy?: string;
 }
 
 export interface ChangePair {
@@ -116,4 +118,21 @@ export interface ValidationReport {
   changes: ChangePair[];
   discarded: { reason: string; title: string }[];
   droppedQuotes: number;
+}
+
+export interface UserAction {
+  itemId: string;
+  state: 'done' | 'not-mine' | 'edited';
+  edits?: { ownerParticipantId?: string | null; deadlineText?: string | null };
+  at: string;
+}
+
+export interface Coverage {
+  totalUnread: number;
+  processedUnread: number;
+  failedRanges: string[];
+  discardedCount: number;
+  complete: boolean;
+  cancelled: boolean;
+  thinkingStripped: boolean;
 }

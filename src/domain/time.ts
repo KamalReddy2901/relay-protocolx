@@ -54,3 +54,12 @@ export function isoToWall(iso: string | null): string {
   if (!iso) return 'no time';
   return iso.slice(0, 16).replace('T', ' ');
 }
+
+/** Current wall-clock time in an IANA zone, as ISO-8601 with offset. */
+export function nowIso(timeZone: string, now = new Date()): string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit',
+  }).formatToParts(now);
+  const g = (t: string) => Number(parts.find((p) => p.type === t)?.value);
+  return wallTimeToIso(g('year'), g('month'), g('day'), g('hour'), g('minute'), g('second'), timeZone) ?? now.toISOString();
+}

@@ -29,3 +29,15 @@ Checks run locally: `npm test` 14/14 pass (parser, validator; synthetic fixtures
 Deployed: production serves e29851f assets (index-Dt3TZxpl.js) with the new CSP header (verified by curl).
 
 CP1 model probe: NOT RUN. BrowserOS Neo returned "Context server request timeout" for every call (tabs, run, wait, human-help). No model load, timing, quality, network or cache result exists yet.
+
+## 9 Oct 2026 — S1–S5 implementation (Zed, one writer, no Neo calls, no push/deploy)
+
+Instruction: Codex runs the CP1 probe through Neo on the deployed `#probe` page; this session must not call Neo or deploy until Codex confirms. Model capability stays UNVERIFIED until Codex reports.
+
+Implemented locally (uncommitted until the commit noted below; not pushed):
+- Domain: chunker with context, ledger and oversize-message parts; runner (retry once on invalid JSON, split on overflow/truncation, fatal GPU errors, cancel, partial coverage, retry-failed merge); conservative reconcile (merge, supersession, conflicting confirmed decisions); deterministic deadline resolver; deterministic ranking with per-identity acknowledgments.
+- UI: S1 import, S2 review (issues table, date order, timezone, identity incl. names not in chat, last-read filter), S3 model/run (capability, explicit download, cached auto-initialize, verbatim progress, chunk progress, cancel, retry, unsupported panel, remove model files), S4 brief (Act now / What changed redlines / For context, coverage and Partial banner, Done/Not mine/Edit/Undo, identity switch, run again, retry failed, start-over dialog), S5 inspector (aside at ≥1280px, modal dialog below).
+- Fonts self-hosted via @fontsource; framer-motion and lucide-react added (pinned).
+Checks run: `npm test` 25/25 (parser, validator, runner with a clearly labelled test double for the model, chunker/ledger cross-chunk change, oversize parts, retry merge, deadlines, owner resolution), `npm run lint`, `npx tsc --noEmit`, `npm run build` all pass. Contrast script: all 16 pairs pass (docs/verification.md).
+NOT done: any rendered UI check (no browser used), V1–V12, AC1–AC22, real inference with the new prompts/pipeline, deployment of this build, Playwright, README/P12. The test double is internal; the production path has no canned analysis.
+Prompt note: the ledger sentence is appended to the system prompt only when ledger lines are present; the base prompt text probed at CP1 is unchanged.

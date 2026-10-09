@@ -23,6 +23,8 @@ export interface ValidationContext {
   order: Map<string, number>;
   participants: Participant[];
   chunkIndex: number;
+  /** Parts of oversize messages: part key (m88#1) -> parent id and character offset. */
+  parts?: Map<string, { parentId: string; offset: number }>;
 }
 
 export type ParseOutcome = { ok: true; value: RawExtraction; thinkingStripped: boolean } | { ok: false; error: string };
@@ -132,7 +134,14 @@ export function validateExtraction(raw: RawExtraction, ctx: ValidationContext): 
         report.droppedQuotes++;
         continue;
       }
-      evidence.push({ messageId: e.id, quote: msg.text.slice(at.start, at.end), role: e.role, start: at.start, end: at.end });
+      const part = ctx.parts?.get(e.id);
+      evidence.push({
+        messageId: part ? part.parentId : e.id,
+        quote: msg.text.slice(at.start, at.end),
+        role: e.role,
+        start: at.start + (part?.offset ?? 0),
+        end: at.end + (part?.offset ?? 0),
+      });
     }
     if (evidence.length === 0) {
       report.discarded.push({ reason: 'no valid source', title: r.title });
@@ -165,7 +174,8 @@ export function validateExtraction(raw: RawExtraction, ctx: ValidationContext): 
           for (const f of r.change_fields ?? []) {
             const bMsg = ctx.known.get(f.before_id);
             const aMsg = ctx.known.get(f.after_id);
-            if (!bMsg || !aMsg || f.before_id !== before.messageId || f.after_id !== after.messageId) continue;
+            const parent = (id: string) => ctx.parts?.get(id)?.parentId ?? id;
+            if (!bMsg || !aMsg || parent(f.before_id) !== before.messageId || parent(f.after_id) !== after.messageId) continue;
             if (!norm(bMsg.text).includes(norm(f.before_value)) || !norm(aMsg.text).includes(norm(f.after_value))) continue;
             if (norm(f.before_value) === norm(f.after_value)) continue;
             pairs.push({

@@ -1,37 +1,15 @@
-import { CreateWebWorkerMLCEngine, type InitProgressReport, type MLCEngineInterface } from '@mlc-ai/web-llm';
+import {
+  CreateWebWorkerMLCEngine,
+  deleteModelAllInfoInCache,
+  hasModelInCache,
+  type InitProgressReport,
+  type MLCEngineInterface,
+} from '@mlc-ai/web-llm';
 import { EXTRACTION_SCHEMA, SYSTEM_PROMPT } from '../domain/extraction';
 
 export const MODEL_ID = 'Qwen3-4B-q4f16_1-MLC';
 
-export interface Capability {
-  webgpu: boolean;
-  shaderF16: boolean;
-  adapterInfo: string;
-  reason?: string;
-}
-
-export async function checkCapability(): Promise<Capability> {
-  interface MinimalGpu {
-    requestAdapter(): Promise<{
-      features: { has(f: string): boolean };
-      info?: { vendor?: string; architecture?: string; description?: string };
-    } | null>;
-  }
-  const gpu = (navigator as Navigator & { gpu?: MinimalGpu }).gpu;
-  if (!gpu) return { webgpu: false, shaderF16: false, adapterInfo: '', reason: 'navigator.gpu is not available' };
-  try {
-    const adapter = await gpu.requestAdapter();
-    if (!adapter) return { webgpu: false, shaderF16: false, adapterInfo: '', reason: 'No WebGPU adapter was returned' };
-    const info = adapter.info;
-    return {
-      webgpu: true,
-      shaderF16: adapter.features.has('shader-f16'),
-      adapterInfo: [info?.vendor, info?.architecture, info?.description].filter(Boolean).join(' / '),
-    };
-  } catch (e) {
-    return { webgpu: false, shaderF16: false, adapterInfo: '', reason: (e as Error).message };
-  }
-}
+export { checkCapability, type Capability } from './capability';
 
 export interface GenerationSettings {
   temperature: number;
@@ -83,4 +61,12 @@ export async function generate(
     completionTokens: res.usage?.completion_tokens ?? null,
     ms: Math.round(performance.now() - t0),
   };
+}
+
+export function isModelCached(): Promise<boolean> {
+  return hasModelInCache(MODEL_ID);
+}
+
+export function removeModelFiles(): Promise<void> {
+  return deleteModelAllInfoInCache(MODEL_ID);
 }

@@ -70,14 +70,27 @@ Reply with JSON only, matching the schema. Rules:
 - Do not invent facts. Skip chit-chat. If nothing qualifies return {"items":[]}.
 Example. Lines: {"id":"m1","author":"Ana","text":"Bake sale is at the gym on Sat."} {"id":"m2","author":"Ana","text":"Update: bake sale moved to the library. Ben, bring the cash box."} Output: {"items":[{"kind":"change","title":"Bake sale place changed","owner_name":null,"deadline_text":null,"status":"confirmed","subject":"bake sale place","change_fields":[{"field":"place","before_value":"gym","after_value":"library","before_id":"m1","after_id":"m2"}],"evidence":[{"id":"m1","quote":"at the gym on Sat","role":"before"},{"id":"m2","quote":"moved to the library","role":"after"}]},{"kind":"action","title":"Bring the cash box to the library","owner_name":"Ben","deadline_text":null,"status":"confirmed","subject":"cash box","evidence":[{"id":"m2","quote":"Ben, bring the cash box","role":"assigns"}]}]}`;
 
-export function serializeMessage(m: Message, context: boolean): string {
+export function serializeMessage(m: Message, tag: 'context' | 'ledger' | boolean = false): string {
   const obj: Record<string, unknown> = { id: m.id, time: isoToWall(m.timestamp), author: m.authorRaw, text: m.text };
-  if (context) obj.context = true;
+  if (tag === 'ledger') obj.ledger = true;
+  else if (tag) obj.context = true;
   return JSON.stringify(obj);
 }
 
-export function buildUserPrompt(messages: Message[], context: Message[]): string {
-  const lines = [...context.map((m) => serializeMessage(m, true)), ...messages.map((m) => serializeMessage(m, false))];
+/** Appended only when earlier-chunk evidence is supplied, so the base prompt stays the one that was probed. */
+export const LEDGER_NOTE =
+  '\nLines with "ledger":true are exact quotes from earlier messages, shown so you can cite them as the "before" side of a change. Cite their id and copy the quote exactly.';
+
+export function systemPromptFor(hasLedger: boolean): string {
+  return hasLedger ? SYSTEM_PROMPT + LEDGER_NOTE : SYSTEM_PROMPT;
+}
+
+export function buildUserPrompt(messages: Message[], context: Message[], ledger: Message[] = []): string {
+  const lines = [
+    ...ledger.map((m) => serializeMessage(m, 'ledger')),
+    ...context.map((m) => serializeMessage(m, 'context')),
+    ...messages.map((m) => serializeMessage(m)),
+  ];
   return `Chat lines:\n${lines.join('\n')}\n\nExtract the JSON now.`;
 }
 
