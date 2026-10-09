@@ -1,6 +1,11 @@
 # prompt.md — Relay (ProtocolX "What Did I Miss?")
 
-Status: DRAFT, 9 Oct 2026. The app is NOT ready for judging. The real-model check has not been run.
+Status: DRAFT, 9 Oct 2026. A live BASE checkpoint is deployed at https://relay-protocolx.pages.dev (app commit `4c29eb0`, with a task-deadline fix pending deployment at the time of writing). It is NOT claimed ready for judging and nothing has been submitted to the portal.
+
+**GenAI services used and where (organizer requirement):**
+- *Runtime (in the product):* WebLLM 0.2.85 running Qwen3-4B-q4f16_1-MLC in the user's browser (Web Worker). It performs the extraction of items/changes from the pasted chat. No cloud AI, no second model, no canned output. Rules (parser, validation, ranking, deadlines) are deterministic code, not AI.
+- *Development:* Zed agent (model self-reported as "Claude Sonnet 5.5") wrote the application code in this checkout; Codex (via BrowserOS Neo) ran the browser probes and reviews; earlier planning/design documents (SPEC.md, DESIGN.md) came from Figma Make/Opus as reported by the participant, and their prompts are only as recorded in `docs/PROMPT-LOG.md`.
+- *Test input:* every chat used so far is a synthetic fixture written for testing. No real or provided conversation has been used, and synthetic input is not presented as one.
 
 **Chronology (honest record).** The organizer's master prompt says prompt.md should be created before application code. That did not happen here: the CP0 shell was built earlier (`16f0210`), and the CP1 probe code (`e29851f`) was written and deployed BEFORE this file existed. The first prompt.md (`fc0bd48`) was created after it, on the user's instruction, and this version restructures it to the organizer's sections. Application code has been paused since then. The master prompt's text says "six required sections" but lists seven; all seven are below.
 
@@ -9,11 +14,11 @@ Each interaction below records: prompt, tool/model, purpose, files affected, out
 ## 1. Project Overview
 - **Problem:** after being away from a busy group chat, a student cannot tell what changed, what they personally must do, and which messages prove it.
 - **Solution:** Relay: paste a supported chat export, choose who you are and the last message you read, and receive a brief with Act now / What changed / For context. The user chooses the text and the last-read boundary; Relay does not detect unread state. Each item links to exact source quotes. Differentiation (product hypothesis, not a "first" claim): an explicit revision is shown as a before/after redline with both sources and a personal consequence.
-- **Features implemented so far:** deterministic chat parser, extraction schema/prompt, evidence validator, WebLLM worker, hidden `#probe` debug view. **Not implemented:** import/review/model/brief/inspector screens, chunking, reconciliation, ranking, acknowledgments, reset, failure states.
+- **Features in the deployed base (4c29eb0):** S1 import, S2 review (issues, date order, timezone, identity, last-read), S3 model setup/run with progress and cancel, S4 brief (Act now / What changed redlines / For context, coverage, Done/Not mine/Edit/Undo, identity switch, run again, retry failed, start over), S5 source inspector, chunking with context and evidence ledger, conservative reconciliation, deterministic ranking, instruction-like-text guard, hidden `#probe` view. **Observed live (reported by Codex/the user, synthetic chat):** live Qwen inference completed, the time/place redline appeared, the inspector showed the exact source messages. **Not verified:** multi-chunk runs on production, failure/offline recovery on the new UI, keyboard/accessibility and V2–V12 visual checks, AC1–AC22, no-egress, other devices.
 - Specs: `SPEC.md`, `DESIGN.md`.
 
 ## 2. Tech Stack & Architecture
-React 19 + TypeScript + Vite, `@mlc-ai/web-llm` 0.2.85 (Qwen3-4B-q4f16_1-MLC) in a Web Worker, Vitest, Cloudflare Pages (static, no server, no secrets), GitHub repo `KamalReddy2901/relay-protocolx`. Architecture per SPEC §8: UI → reducer state → pure domain modules (parser, validate, later chunker/rank) → inference adapter → worker. Chat text is meant to stay in the browser; this has NOT been verified in a network capture.
+React 19 + TypeScript + Vite, `@mlc-ai/web-llm` 0.2.85 (Qwen3-4B-q4f16_1-MLC) in a Web Worker, Vitest, Cloudflare Pages (static, no server, no secrets), GitHub repo `KamalReddy2901/relay-protocolx`. Architecture per SPEC §8: UI (`src/ui`) → in-memory state → pure domain modules (`parser`, `chunker`, `validate`, `reconcile`, `rank`, `dates`, `runner`) → inference adapter (`src/inference`) → WebLLM worker. Chat text is meant to stay in the browser; this has NOT been verified in a network capture.
 
 ## 3. AI Code Generation
 ### 3.1 Continue implementation, start with CP1 (verbatim)
@@ -33,24 +38,28 @@ React 19 + TypeScript + Vite, `@mlc-ai/web-llm` 0.2.85 (Qwen3-4B-q4f16_1-MLC) in
 | CP0: TypeScript 7 conflicted with typescript-eslint peer range (from `docs/BUILD-LOG.md`, earlier session) | Not recorded in this session | Pinned TypeScript 6.0.3 | Resolved per build log |
 | `npm audit` reported critical advisories in vitest 3.2.4 and 3.2.7 (tinypool, @vitest/mocker) | Part of prompt 3.1 | Upgraded to vitest 4.1.11; audit reports 0 vulnerabilities | Verified locally |
 | A unit test failed: fixture dates were ambiguous, so the parser (correctly) gave no timestamp | Part of prompt 3.1 | Test supplies `dateOrder: 'DMY'` | Tests pass |
-| BrowserOS Neo returned "Context server request timeout" on every call (tabs, `run`, `wait`, human-help) | Part of prompt 3.1 | None yet; user to refocus BrowserOS Neo | **Unresolved at time of writing**; probe NOT run |
+| BrowserOS Neo returned "Context server request timeout" on every call from the Zed session (tabs, `run`, `wait`, human-help), later "MCP tool cancelled" | Part of prompt 3.1 | User refocused Neo; Codex then ran the probes | Resolved for Codex; Zed no longer uses Neo |
+| CP1 probe (reported): injection fixture's hostile message cited as `confirms`; unsupported change rejected, valid earlier proposal lost | Prompt 3.5 | `injection.ts` guard, downgrade-to-original-statement in `validate.ts`, regression tests | Unit-tested; fix NOT re-probed live |
+| Own scripted run: choosing a date format hid the DMY/MDY control (ambiguity flag cleared) | Self-found while writing `scripts/qa/journey.mjs` | Flag stays set once ambiguity is detected; test updated | Fixed in 4c29eb0 |
+| P09 (reported by user from Neo): at 1024×768 the S1 button ended at y=782, below the viewport | Prompt 3.6 | Textarea min-height 21rem for 768–1279px; re-measured 703 / 783 / 558 at 1024 / 1440 / 390 | Verified with local headless Chrome |
+| Production run (reported by Codex): "4pm · 9 Oct" and "Due today" shown for a task with no deadline; 4pm was the event time (SPEC §4) | Prompt 3.7 | `isTaskDeadline` cue check in `dates.ts`; `rank.ts` keeps non-deadline times as `eventTime`, due = "No date given"; UI shows "Event time: … (not a task deadline)"; user-edited deadlines count as deadlines | Regression tests added (30/30 pass); NOT yet re-verified in Neo |
 
 ## 5. AI Features & Design
-### 5.1 Runtime AI (coded, never executed)
-System prompt: `SYSTEM_PROMPT` in `src/domain/extraction.ts` (data-not-instructions rule, JSON schema, confirmed vs proposed definitions, change only on explicit revision, one worked example about a bake sale, which is a synthetic prompt example). Chat lines are serialized as JSON objects. Settings: JSON-schema constrained output, `enable_thinking: false`, temperature 0.2, top_p 0.9, seed 7. These values were chosen without any model output; they are untuned.
-**Status:** no output ever observed; effectiveness unverified.
+### 5.1 Runtime AI (executed live on synthetic input; quality not measured)
+System prompt: `SYSTEM_PROMPT` in `src/domain/extraction.ts` (data-not-instructions rule, JSON schema, confirmed vs proposed definitions, change only on explicit revision, one worked example about a bake sale, which is a synthetic prompt example). Chat lines are serialized as JSON objects. Settings: JSON-schema constrained output, `enable_thinking: false`, temperature 0.2, top_p 0.9, seed 7. These values were chosen before any model output and have not been tuned. A rule was later added telling the model that chat lines which instruct it to ignore rules or mark things done are not evidence; that prompt version has NOT been re-probed live. Thinking is not shown to be disabled (empty `<think>` wrappers were reported); the app strips them.
+**Status (reported by Codex/user):** Qwen3-4B loaded cold in 129.7 s (2,159 MB shown), ran warm from cache and offline, found the signature time/place change and kept a proposal as Proposed on synthetic fixtures. No accuracy figure is claimed.
 ### 5.2 Design and architecture decisions
-Taken from the accepted `SPEC.md`/`DESIGN.md` (written earlier with other tools; their prompts are only as recorded in `docs/PROMPT-LOG.md`, with gaps). Decisions in this session: no cloud/second-engine fallback; no canned output; CSP hosts for model files are an unverified guess pending the probe.
+Taken from the accepted `SPEC.md`/`DESIGN.md` (written earlier with other tools; their prompts are only as recorded in `docs/PROMPT-LOG.md`, with gaps). Decisions in this session: no cloud/second-engine fallback; no canned output; CSP hosts for model files: the probe reported huggingface.co and raw.githubusercontent.com; the wildcard entries are not yet narrowed.
 
 ## 6. Testing & Improvements
-Done: parser and validator unit tests on synthetic fixtures (formats, multiline, ambiguity, read boundary, invented IDs, altered quotes, ordering, owner ambiguity); lint, typecheck, build.
-NOT done (unverified): model download, cold/warm load, non-thinking behavior, JSON validity, confirmed-vs-proposed accuracy, quote validity, CORS/redirect hosts, cache, memory, offline recovery, content-leakage check, judge-device support, all AC1–AC22 end-to-end checks, accessibility and visual checks. No real conversation supplied.
+Done: 30 unit tests (parser, validator, runner with a labelled model test double, chunker/ledger, oversize parts, retry merge, deadline parsing, ranking, injection regression, event-time regression); lint; typecheck; build; contrast script (16/16 pass); S1 measured at three viewports in local headless Chrome; production smoke (S1→S2, fonts, no CSP errors). Reported by Codex in Neo on production 4c29eb0: S1→S2→cached inference→S4→S5 completed on a synthetic chat.
+NOT done: re-probe of the current prompt and injection fix, verification of the event-time fix on production, multi-chunk (AC15) and failure/offline (AC16–AC17) on the deployed UI, keyboard/a11y checks, V2–V12, a no-egress capture that includes the worker, other devices, a real/permitted conversation.
 
-## 7. Final Summary (interim)
-- **AI tools used:** Zed agent for implementation; earlier planning/design tools per `docs/PROMPT-LOG.md`; WebLLM + Qwen3-4B planned for runtime, not yet run.
-- **Major contributions so far:** parser, schema/prompt, validator, worker, probe, tests, deployment of the probe build.
-- **Completed features:** none verified. The S1–S5 journey exists in code (local, unpushed, un-rendered); no end-to-end run has been observed. Not ready for judging.
-- **CP3 readiness gate:** may be claimed only when the deployed end-to-end journey passes all mandatory acceptance checks, including multi-chunk processing and reconciliation (AC15) and failure recovery (AC16–AC17, partial coverage), with real inference, as listed in SPEC §11 and §13.
+## 7. Final Summary (interim, 9 Oct 2026)
+- **AI tools used:** WebLLM + Qwen3-4B (runtime, in-browser); Zed agent (code); Codex via BrowserOS Neo (browser probes and review); Figma Make/Opus for the earlier SPEC/DESIGN (as reported).
+- **Major contributions:** parser, chunking, evidence validator, reconciliation, deterministic ranking, S1–S5 UI, instruction-text guard, event-time fix, tests, deployment.
+- **Completed features (observed):** live inference on synthetic chat through to the brief and source inspector on production. Everything else is unit-tested or unverified as listed in section 6.
+- **Gate:** "ready for judging" may be claimed only after the deployed journey passes the mandatory acceptance checks including multi-chunk reconciliation (AC15) and failure recovery (AC16–AC17). Not yet true. Portal: max 3 scored attempts, only the last counts; nothing has been submitted.
 
 ## Interaction log (append-only)
 ### 3.4 Implementation of S1–S5 while Codex probes (verbatim)
@@ -82,3 +91,14 @@ Outcome: this restructure. Files: `prompt.md`. Verification: none beyond reading
 - **Tool/model:** Zed agent. **Files:** `src/domain/{injection,validate,runner,extraction,types}.ts`, `src/domain/domain.test.ts`, `src/ui/{Inspector,Brief,Import,ModelStep}.tsx`, docs.
 - **Outcome:** 28/28 unit tests, lint, typecheck, build pass locally. The added system-prompt rule and the validator salvage are NOT verified with the live model. Nothing pushed or deployed.
 - **Debugging:** a regression test failed because my test file lacked an import (fixed). A sed edit failed on macOS and was redone in Python.
+
+### 3.6 P09 finding and base-first deploy (summaries)
+- User relayed a P09 result (1024×768 button below the viewport) and asked for a height-only fix keeping V1 at 1440×900 and 390×844; later asked to "do BASE FIRST": minimum build/smoke, push and deploy via the authorized P08 Mode B, update README/RELEASE/logs, call it a live base checkpoint (not submission-ready; final prompt not re-probed). Outcome: `e1e29b5` fix, `4c29eb0` deployed; production smoke passed (`scripts/qa/prod-smoke.mjs`). Files: `src/index.css`, README, docs.
+
+### 3.7 Task-deadline defect (verbatim)
+> Focused P09/P10 finding from Codex's BrowserOS Neo run on production commit 4c29eb0. I ran the synthetic signature conversation through S1→S2→cached Qwen inference→S4→S5. Good: live inference completed, the time/place redline appeared, and S5 showed the exact original source messages. Fix this one concrete defect: the source has no timestamp/deadline, but the result says "4pm · 9 Oct" and "Assigned to you · Due today." SPEC §4 explicitly says 4pm is the event time, not a task deadline; show "No date given" for the task deadline and preserve the event time separately as context. Prevent an event time from becoming a task due date. Add a focused regression test, rerun tests/lint/typecheck/build, push and deploy through the existing Pages project, then re-run this fixture in Neo and verify both the task deadline and separate event-time display. Record the actual prompt, observed result, and checks in the logs/prompt.md. This is the single immediate release-quality fix; keep the base live while iterating and do not claim submission-ready yet.
+
+- **Tool/model:** Zed agent. **Files:** `src/domain/{dates,rank}.ts`, `src/ui/Brief.tsx`, `src/domain/pipeline.test.ts`. **Outcome:** tests 30/30, lint, typecheck, build pass. Production re-verification in Neo is pending (done by Codex).
+
+### 3.8 Packaging note (summary)
+User relayed: required portal items are the public repo, the deployed URL (deck says required), a brief description and root `prompt.md` stating which GenAI services were used and where; deck rejects fake/static/canned output and features failing end-to-end; scoring emphasis UI/UX and code quality high, security/accessibility/innovation medium, testing/docs lower, working features and link manually checked; max 3 scored attempts, only the last counts; do not submit during this iteration. Asked to make prompt.md truthful about today's production run. Outcome: this revision. No prompts were reconstructed beyond those recorded here.

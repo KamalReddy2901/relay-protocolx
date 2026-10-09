@@ -80,3 +80,20 @@ export function formatWall(iso: string | null): string {
 export function sameWallDay(a: string, b: string): boolean {
   return a.slice(0, 10) === b.slice(0, 10);
 }
+
+const CUE = /\b(by|before|until|till|due|deadline|no later than|eod|end of (the )?day|tonight)\b/i;
+
+/**
+ * A model-supplied time is a task deadline only when the sentence that contains it carries a deadline cue
+ * ("by Friday 5pm"). Otherwise it is the event's time (e.g. "setup at 4pm"), which is shown as context.
+ */
+export function isTaskDeadline(deadlineText: string, messageTexts: string[]): boolean {
+  const needle = deadlineText.trim().toLowerCase();
+  if (!needle) return false;
+  for (const text of messageTexts) {
+    for (const sentence of text.split(/(?<=[.!?])\s+|\n/)) {
+      if (sentence.toLowerCase().includes(needle) && CUE.test(sentence)) return true;
+    }
+  }
+  return false;
+}

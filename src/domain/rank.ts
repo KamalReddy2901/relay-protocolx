@@ -1,4 +1,4 @@
-import { formatDue, resolveDeadline, sameWallDay } from './dates';
+import { formatDue, isTaskDeadline, resolveDeadline, sameWallDay } from './dates';
 import { sameSubject } from './reconcile';
 import { resolveOwner } from './validate';
 import type { ChangePair, Item, Message, Participant, UserAction } from './types';
@@ -17,6 +17,8 @@ export interface ActItem {
   ownerId: string | null;
   ownerLabel: string;
   due: Due;
+  /** Time words that describe the event, not a task deadline (shown as context). */
+  eventTime: string | null;
   reasons: string[];
   beforeLastRead: boolean;
   edited: boolean;
@@ -115,8 +117,14 @@ export function rank(input: RankInput): Ranking {
     const ua = actions[it.id];
     const editedOwner = ua?.edits && 'ownerParticipantId' in ua.edits ? ua.edits.ownerParticipantId ?? null : undefined;
     const ownerId = editedOwner !== undefined ? editedOwner : it.ownerParticipantId;
-    const deadlineText = ua?.edits && 'deadlineText' in ua.edits ? ua.edits.deadlineText ?? null : it.deadlineText;
-    const due = dueFor(deadlineText, anchorOf(it), referenceTime, timezone);
+    const userDeadline = !!ua?.edits && 'deadlineText' in ua.edits;
+    const rawDeadline = userDeadline ? ua?.edits?.deadlineText ?? null : it.deadlineText;
+    const isDeadline =
+      !rawDeadline ||
+      userDeadline ||
+      isTaskDeadline(rawDeadline, it.evidence.map((e) => byId.get(e.messageId)?.text ?? ''));
+    const due = dueFor(isDeadline ? rawDeadline : null, anchorOf(it), referenceTime, timezone);
+    const eventTime = !isDeadline ? rawDeadline : null;
     const reasons: string[] = [];
     const ownerChange = changes.find((c) => c.field === 'owner' && sameSubject(c.subjectKey, it.subjectKey));
     if (ownerId === selfId) {
@@ -141,6 +149,7 @@ export function rank(input: RankInput): Ranking {
       ownerId,
       ownerLabel,
       due,
+      eventTime,
       reasons,
       beforeLastRead: allRead(it),
       edited: ua?.state === 'edited' || !!ua?.edits,

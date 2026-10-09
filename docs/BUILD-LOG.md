@@ -80,3 +80,6 @@ The earlier entry "CP1 model probe: NOT RUN" described this Zed session when Bro
 
 ## 9 Oct 2026 — base checkpoint publish (Zed)
 Before push: `npm test` 28/28, lint, typecheck, build passed locally; S1 viewport measurements at 1440/1024/390 passed. Local smoke of the S2→model→S4 journey was NOT completed (my scripted run was interrupted earlier). Pushed to main for auto-deploy; deployed result recorded in docs/RELEASE.md.
+
+## 9 Oct 2026 — event time vs task deadline (Zed)
+Defect (reported by Codex from production 4c29eb0): task with no stated deadline showed "4pm · 9 Oct" and "Due today". Cause: model `deadline_text` ("4pm", really the setup time) was resolved as the task due date, against "now" because the chat had no timestamps. Fix: `isTaskDeadline` requires a deadline cue (by/before/until/due/EOD/tonight…) in the sentence containing the time; otherwise `eventTime` is shown as context and due is "No date given"; user-edited deadlines are treated as deadlines. Regression tests (2) added. Local: `npm test` 30/30, lint, typecheck, build pass. Not yet verified on production.

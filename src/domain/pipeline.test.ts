@@ -212,3 +212,47 @@ describe('retrying failed sections', () => {
     expect(merged.coverage.processedUnread).toBe(60);
   });
 });
+
+describe('regression: event time is not a task deadline (found on production 4c29eb0)', () => {
+  const text = [
+    '10/10/26, 09:00 - Priya: Setup is at 3pm in Room B214, Arjun bring the projector.',
+    '10/10/26, 09:20 - Priya: Update: moved to LT-2 at 4pm. Kamal, please grab the projector instead. Also Kamal send the budget sheet by Friday 5pm.',
+  ].join('\n');
+  const { p, msgs } = setup(text);
+  const people = [...p.participants, { id: 'p9', displayName: 'Kamal', messageCount: 0 }];
+  const model: GenerateFn = async () => ({
+    finishReason: 'stop',
+    text: JSON.stringify({
+      items: [
+        { kind: 'action', title: 'Bring the projector to LT-2', owner_name: 'Kamal', deadline_text: '4pm', status: 'confirmed', subject: 'projector', evidence: [{ id: 'm2', quote: 'Kamal, please grab the projector instead', role: 'assigns' }] },
+        { kind: 'action', title: 'Send the budget sheet', owner_name: 'Kamal', deadline_text: 'Friday 5pm', status: 'confirmed', subject: 'budget sheet', evidence: [{ id: 'm2', quote: 'Kamal send the budget sheet by Friday 5pm', role: 'assigns' }] },
+      ],
+    }),
+  });
+
+  it('shows no task date for the projector, keeps 4pm as event time, and still honours a real deadline', async () => {
+    const out = await runCatchUp({ messages: msgs, participants: people, generate: model });
+    const r = rank({ items: out.items, changes: out.changes, messages: msgs, participants: people, selfId: 'p9', referenceTime: '2026-10-10T09:30:00+05:30', timezone: TZ, actions: {} });
+    const proj = r.actNow.find((a) => a.item.title.includes('projector'))!;
+    expect(proj.due.kind).toBe('none');
+    expect(proj.due.text).toBe('No date given');
+    expect(proj.eventTime).toBe('4pm');
+    expect(proj.reasons).not.toContain('Due today');
+    expect(proj.reasons).not.toContain('Overdue');
+    const sheet = r.actNow.find((a) => a.item.title.includes('budget'))!;
+    expect(sheet.due.kind).toBe('resolved');
+    expect(sheet.due.resolved).toBe('2026-10-16T17:00:00+05:30');
+    expect(sheet.eventTime).toBeNull();
+    // undated sorts after dated
+    expect(r.actNow[0].item.title).toContain('budget');
+  });
+
+  it('treats a user-edited deadline as a task deadline', async () => {
+    const out = await runCatchUp({ messages: msgs, participants: people, generate: model });
+    const id = out.items.find((i) => i.title.includes('projector'))!.id;
+    const r = rank({ items: out.items, changes: out.changes, messages: msgs, participants: people, selfId: 'p9', referenceTime: '2026-10-10T09:30:00+05:30', timezone: TZ, actions: { [id]: { itemId: id, state: 'edited', edits: { deadlineText: 'today 4pm' }, at: 'x' } } });
+    const proj = r.actNow.find((a) => a.item.id === id)!;
+    expect(proj.due.kind).toBe('resolved');
+    expect(proj.eventTime).toBeNull();
+  });
+});

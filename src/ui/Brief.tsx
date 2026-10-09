@@ -202,6 +202,7 @@ export function Brief(props: Props) {
             {a.beforeLastRead ? `${a.reasons.length ? ' · ' : ''}Before you last read` : ''}
             {a.edited ? ' · Edited by you' : ''}
           </p>
+          {a.eventTime && <p className="reasons">Event time: {a.eventTime} (not a task deadline)</p>}
           <div className="meta">
             <button className="ref" data-sel={key} onClick={(e) => select(key, e)}>
               Sources

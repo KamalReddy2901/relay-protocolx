@@ -97,3 +97,6 @@ User relayed BrowserOS probe findings (cold load 129,728 ms, 2,159 MB, injection
 
 ## Zed session, 9 Oct 2026 — base checkpoint deploy (summary)
 User priority instruction: base first; do the minimum remaining build and local smoke checks, commit/push and deploy to the existing repo and Pages project under the already-authorized P08 Mode B; update README, RELEASE, BUILD-LOG, PROMPT-LOG; call it a live base checkpoint, not submission-ready; the final model prompt has not been re-probed; Codex handles Neo and post-deploy review; send URL and deployed commit. Outcome: see docs/RELEASE.md.
+
+## Zed session, 9 Oct 2026 — task-deadline defect and packaging note
+Verbatim defect prompt and summary of the packaging note are recorded in prompt.md §3.7–3.8. Outcome: event-time vs task-deadline fix (tests 30/30); production re-verification pending Codex/Neo.
