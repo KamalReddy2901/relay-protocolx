@@ -82,8 +82,8 @@ export function Steps({ current }: { current: 1 | 2 | 3 }) {
 export function TopBar({ wide = false }: { wide?: boolean }) {
   return (
     <div className={`topbar ${wide ? 'wide' : ''}`}>
-      <span className="wordmark">Relay</span>
-      <span className="small muted">Runs in this browser · No account</span>
+      <span className="wordmark">relay<span className="signal-dot" aria-hidden="true" /></span>
+      <span className="small muted">ON DEVICE / NO ACCOUNT</span>
     </div>
   );
 }

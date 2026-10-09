@@ -1,6 +1,6 @@
 # prompt.md — Relay (ProtocolX "What Did I Miss?")
 
-Status: DRAFT, 9 Oct 2026. The live base app is at https://relay-protocolx.pages.dev; production was checked after source commit `21929e5`; BrowserOS loaded the updated JS/CSS assets. The check verified the shell and compiled styles, not a fresh inference-generated brief. It is NOT claimed ready for judging and nothing has been submitted to the portal. Further prompt work is local and not yet deployed.
+Status: Submission draft, 9 Oct 2026. Night Shift implementation and real model observations are recorded below. Public deployment and known limitations are documented in docs/RELEASE.md; no portal submission has been made.
 
 **GenAI services used and where (organizer requirement):**
 - *Runtime (in the product):* WebLLM 0.2.85 running Qwen3-4B-q4f16_1-MLC in the user's browser (Web Worker). It performs the extraction of items/changes from the pasted chat. No cloud AI, no second model, no canned output. Rules (parser, validation, ranking, deadlines) are deterministic code, not AI.
@@ -117,3 +117,9 @@ User asked “what now”. Codex ran the labeled synthetic signature conversatio
 
 ### 3.12 Focused omission audit
 User asked to continue functional work while Figma creates the new visual direction (summary; exact message is in the chat). Codex added `omissions.ts`, conditional same-model recovery in `runner.ts`, and regression tests. The audit is triggered by recall cues and returns real model output with exact-source validation; no generated answer is hardcoded. Files: domain modules, tests, SPEC, and logs. Tests 33/33, lint/build passed locally; production quality not yet verified.
+
+## Night Shift implementation — 9 October 2026
+Actual participant instruction: “bro please finish the entire thing in one go and we'll get ready for submission- there is VERYYYY little time left now”. Design input: supplied Figma text, preserved in docs/FIGMA-NIGHT-SHIFT.md.
+Tool: Codex; Figma Make/Opus attribution reported by participant. Purpose: replace the rejected paper aesthetic with Night Shift, preserve real domain behavior and package submission. Files: DESIGN.md, UI, CSS, font imports/dependencies, favicon, README and submission docs.
+Outcome: asymmetric intake, highlighted task titles, actual count navigation, grouped changes, decorative source-linked rail, on-demand proof drawer, clipboard success/error state. No synthetic sample output added.
+Verification: lint and 33 tests pass; production build passes after correcting unavailable font subpath. Local browser at 1440 and 390 showed no horizontal overflow; display font resolved to Bricolage. Mobile review screenshot inspected. Live c10fb40 inference recovered task and owner change, but omitted schedule details; completeness not claimed. New redesign production check follows deployment.

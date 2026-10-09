@@ -54,22 +54,26 @@ export function Import({ initialText, fileName, onReview, skipFocus, notice }: P
   return (
     <>
       <TopBar />
-      <main className="sheet" id="main">
+      <main className="arrival" id="main">
+        <div className="arrival-copy">
         <Steps current={1} />
         <h1 ref={heading} tabIndex={-1} className="headline">
-          What did you miss?
+          You were away.<br />Here’s <span className="lit">your shift.</span>
         </h1>
         <p className="lede">
           Paste the chat you&apos;ve been away from. Relay finds what&apos;s changed, what&apos;s yours to do, and the messages that say so.
         </p>
-        <div className="stack" style={{ marginTop: 'var(--s-5)' }}>
+        <ol className="shift-instructions"><li>01 / Bring your conversation</li><li>02 / Tell us where you left off</li><li>03 / Leave with your next move</li></ol>
+        <p className="arrival-note">A private handover. Real messages. Every claim linked to its source.</p>
+        </div>
+        <div className="intake stack">
           {notice && (
             <p className="small muted" role="status">
               {notice}
             </p>
           )}
           <label className="field">
-            <span>Chat text</span>
+            <span>THE CONVERSATION</span>
             <textarea
               value={text}
               placeholder={PLACEHOLDER}
@@ -82,6 +86,7 @@ export function Import({ initialText, fileName, onReview, skipFocus, notice }: P
               }}
             />
           </label>
+          <div className="intake-meta"><span className="mono">{text.length.toLocaleString()} characters / text only</span><Btn small link onClick={() => { setText(''); setName(undefined); setError(null); }}>Clear</Btn></div>
           {error && <ErrorNotice id="s1-error">{error}</ErrorNotice>}
           <div className="row s1-actions">
             <Btn
@@ -93,7 +98,7 @@ export function Import({ initialText, fileName, onReview, skipFocus, notice }: P
                 setError(e);
               }}
             >
-              Review messages
+              Start shift →
             </Btn>
             <label className="small">
               Or choose a .txt export{' '}

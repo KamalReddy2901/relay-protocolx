@@ -326,7 +326,7 @@ Use a distinct unfamiliar input as well as the internal fixtures. Obtain a real 
 - Model and run progress is announced through an `aria-live="polite"` region.
 - Section headings are real `h2` elements.
 - Labels are written as text, never conveyed by color alone.
-- Only modal overlay/sheet inspectors trap focus; the persistent desktop margin never traps focus. Return focus on dismissal.
+- Only modal overlay/sheet inspectors trap focus; the on-demand desktop proof drawer never traps focus. Return focus on dismissal.
 - `prefers-reduced-motion` is respected.
 - Contrast is AA.
 

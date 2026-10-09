@@ -59,6 +59,7 @@ function DueCell({ due }: { due: Due }) {
 export function Brief(props: Props) {
   const { result, messages, participants, selfId, onSelf, referenceTime, timezone, actions, onAction } = props;
   const reduced = useReducedMotion();
+  const [copyStatus, setCopyStatus] = useState('');
   const wide = useMedia('(min-width: 1280px)');
   const self = participants.find((p) => p.id === selfId);
   const myActions = actions[selfId] ?? {};
@@ -236,17 +237,9 @@ export function Brief(props: Props) {
       <div className="change" data-selected={sel?.key === key}>
         <button className="change-btn" data-sel={key} onClick={(e) => select(key, e)} aria-label={`Open sources for change: ${g.pairs.map((p) => `${p.field} was ${p.before.value}, now ${p.after.value}`).join('; ')}`}>
           <span className="redline">
-            {g.pairs.map((p, i) => (
-              <span className="pair" key={p.id}>
-                {i > 0 && <span className="pair-separator" aria-hidden="true">·</span>}
-                <span className="field">{p.field === 'place' ? 'Place' : p.field[0].toUpperCase() + p.field.slice(1)}:</span>
-                <span className="sr-only">Before: </span>
-                <span className="before">{p.before.value}</span>
-                <span className="arrow" aria-hidden="true">→</span>
-                <span className="sr-only"> After: </span>
-                <span className="after">{p.after.value}</span>
-              </span>
-            ))}
+            <del className="before">{g.pairs.map(p => p.before.value).join(' · ')}</del>
+            <span className="arrow" aria-hidden="true">→</span>
+            <ins className="after">{g.pairs.map(p => p.after.value).join(' · ')}</ins>
           </span>
         </button>
         <div className="meta">
@@ -311,12 +304,12 @@ export function Brief(props: Props) {
   return (
     <>
       <TopBar wide />
-      <div className="brief-layout">
-        <div className="rail" aria-hidden="true" />
+      <div className={`brief-layout ${wide && activeTarget ? 'has-proof' : ''}`}>
+        <div className="rail" aria-hidden="true"><span className="rail-label">THREAD</span>{messages.map(m => <i key={m.id} className={activeTarget?.sources.some(s => s.messageId === m.id) ? 'selected' : ''} />)}</div>
         <main className="brief" id="main">
           <header className="brief-head">
             <h1>
-              {partial ? 'Partial catch-up for ' : 'Catch-up for '}
+              {partial ? 'Partial shift / ' : 'Your shift / '}
               {name}
             </h1>
             <p className="mono muted">
@@ -349,6 +342,8 @@ export function Brief(props: Props) {
                 </select>
               </label>
               <Btn onClick={props.onRunAgain}>Run again</Btn>
+              <Btn onClick={() => { void navigator.clipboard.writeText(document.querySelector('main.brief')?.textContent ?? '').then(() => setCopyStatus('Brief copied.')).catch(() => setCopyStatus('Copy unavailable. Select the brief text to copy.')); }}>Copy brief</Btn>
+              <span role="status" className="small muted">{copyStatus}</span>
               <Btn onClick={() => confirmRef.current?.showModal()}>Start over</Btn>
             </div>
             <div aria-live="polite" className="small" style={{ minHeight: '1.5em' }}>
@@ -363,6 +358,11 @@ export function Brief(props: Props) {
             </div>
           </header>
 
+          <nav className="scoreboard" aria-label="Brief sections">
+            <a href="#h-act" className="score needs"><strong>{ranking.actNow.length}</strong><span>Needs you</span></a>
+            <a href="#h-changed" className="score shifts"><strong>{ranking.changed.length}</strong><span>Changed</span></a>
+            <a href="#h-context" className="score"><strong>{ranking.context.length}</strong><span>For context</span></a>
+          </nav>
           <section className="section" aria-labelledby="h-act">
             <h2 id="h-act">Act now · {ranking.actNow.length}</h2>
             {ranking.actNow.length === 0 ? (
@@ -459,7 +459,7 @@ export function Brief(props: Props) {
           </footer>
         </main>
 
-        {wide && (
+        {wide && activeTarget && (
           <aside className="margin-col inspector" aria-labelledby="inspector-heading" onKeyDown={(e) => { if (e.key === 'Escape' && activeTarget) close(); }}>
             {inspector}
           </aside>
